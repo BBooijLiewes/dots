@@ -46,7 +46,7 @@ call plug#begin()
     Plug 'honza/vim-snippets'
     Plug 'sheerun/vim-polyglot'
     Plug 'tpope/vim-fugitive'
-    Plug 'preservim/nerdcommenter'
+    Plug 'b3nj5m1n/kommentary'
     Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'} 
 call plug#end()
 
