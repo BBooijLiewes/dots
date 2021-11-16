@@ -40,13 +40,14 @@ call plug#begin()
 	Plug 'mbbill/undotree'
     Plug 'ms-jpq/chadtree', {'branch': 'chad', 'do': 'python3 -m chadtree deps'}
     Plug 'neoclide/coc.nvim', {'branch': 'release'}
-    Plug 'shadmansaleh/lualine.nvim'
+    Plug 'nvim-lualine/lualine.nvim'
     Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
     Plug 'junegunn/fzf.vim'
     Plug 'honza/vim-snippets'
     Plug 'sheerun/vim-polyglot'
     Plug 'tpope/vim-fugitive'
     Plug 'b3nj5m1n/kommentary'
+    Plug 'airblade/vim-gitgutter'
     Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'} 
 call plug#end()
 
@@ -353,3 +354,4 @@ let g:coc_global_extensions = [
     \'coc-yaml',
     \'coc-yank'
     \]
+autocmd FileType python let b:coc_root_patterns = ['backend', '.git', '.env', 'venv', '.venv', 'setup.cfg', 'setup.py', 'pyproject.toml', 'pyrightconfig.json']
