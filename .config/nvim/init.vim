@@ -26,6 +26,7 @@ set termguicolors
 
 filetype plugin on
 syntax on
+set pyxversion=3
 
 " enable scroll
 set mouse=a
@@ -35,24 +36,27 @@ call plug#begin()
     Plug 'romgrk/barbar.nvim'
     Plug 'rktjmp/lush.nvim'
     Plug 'ellisonleao/gruvbox.nvim'
-	"Plug 'preservim/nerdtree'
 	Plug 'psliwka/vim-smoothie'
 	Plug 'mbbill/undotree'
-    Plug 'ms-jpq/chadtree', {'branch': 'chad', 'do': 'python3 -m chadtree deps'}
     Plug 'neoclide/coc.nvim', {'branch': 'release'}
     Plug 'nvim-lualine/lualine.nvim'
-    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-    Plug 'junegunn/fzf.vim'
     Plug 'honza/vim-snippets'
     Plug 'sheerun/vim-polyglot'
     Plug 'tpope/vim-fugitive'
     Plug 'b3nj5m1n/kommentary'
     Plug 'airblade/vim-gitgutter'
     Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'} 
+    Plug 'nvim-lua/plenary.nvim'
+    Plug 'nvim-telescope/telescope.nvim'
+    Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
+    Plug 'nvim-telescope/telescope-file-browser.nvim'
+    Plug 'startup-nvim/startup.nvim'
 call plug#end()
 
-autocmd vimenter * ++nested colorscheme gruvbox
+""autocmd vimenter * ++nested 
+
 set background=dark    " Setting dark mode
+colorscheme gruvbox
 
 " Nerd Tree
 " Exit Vim if NERDTree is the only window remaining in the only tab.
@@ -69,7 +73,7 @@ set background=dark    " Setting dark mode
 nnoremap <C-_> :call NERDComment(0, "toggle")<CR>
 vnoremap <C-_> :call NERDComment(0, "toggle")<CR>
 
-nnoremap <leader>v <cmd>CHADopen<cr>
+" nnoremap <leader>v <cmd>CHADopen<cr>
 
 
 " Coc
@@ -222,8 +226,6 @@ set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
 " Manage extensions.
 nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
-" Show commands.
-nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
 " Find symbol of current document.
 nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
 " Search workspace symbols.
@@ -247,17 +249,63 @@ vnoremap Y "+y
 nnoremap p "0p
 vnoremap p "0p
 
-" map fzf
-map <C-p> :Files<CR>
-map <C-k> :Lines<CR>
-command! -bang -nargs=* Rg
-  \ call fzf#vim#grep("rg --column --line-number --no-heading --color=always --smart-case ".shellescape(<q-args>),
-  \    1, fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}), <bang>0)
-map <C-f> :Rg<CR>
-map <C-j> :Buffers<CR>
+
+lua << EOF
+require('telescope').setup{
+  defaults = {
+    -- Default configuration for telescope goes here:
+    -- config_key = value,
+    mappings = {
+      i = {
+        -- map actions.which_key to <C-h> (default: <C-/>)
+        -- actions.which_key shows the mappings for your picker,
+        -- e.g. git_{create, delete, ...}_branch for the git_branches picker
+        ["<C-h>"] = "which_key"
+      }
+    }
+  },
+  pickers = {
+    -- Default configuration for builtin pickers goes here:
+    -- picker_name = {
+    --   picker_config_key = value,
+    --   ...
+    -- }
+    -- Now the picker_config_key will be applied every time you call this
+    -- builtin picker
+  },
+  extensions = {
+    fzf = {
+      fuzzy = true,                    -- false will only do exact matching
+      override_generic_sorter = true,  -- override the generic sorter
+      override_file_sorter = true,     -- override the file sorter
+      case_mode = "smart_case",        -- or "ignore_case" or "respect_case"
+                                       -- the default case_mode is "smart_case"
+    },
+    file_browser = {
+    },
+  }
+}
+require('telescope').load_extension('fzf')
+require("telescope").load_extension "file_browser"
+vim.api.nvim_set_keymap('n', '<C-f>', '<cmd>lua require "telescope".extensions.file_browser.file_browser({ path = vim.fn.expand("%:p:h") })<cr>', { noremap = true })
+vim.api.nvim_set_keymap('n', '<C-b>', '<cmd>lua require "telescope".extensions.file_browser.file_browser()<cr>', { noremap = true })
+EOF
+
+" map Telescope
+map <C-p> :Telescope find_files<CR>
+map <C-j> :Telescope live_grep<CR>
 
 " double esc to disable hlsearch
 nnoremap <silent> <Esc><Esc> <Esc>:nohlsearch<CR><Esc>
+
+lua << EOF
+  require"startup".setup(
+  {
+    theme = 'startify',
+    align = 'center'
+  }
+)
+EOF
 
 lua << EOF
 require'lualine'.setup {
@@ -271,7 +319,7 @@ require'lualine'.setup {
   sections = {
     lualine_a = {'mode'},
     lualine_b = {'branch', 'diff',
-                  {'diagnostics', sources={'nvim_lsp', 'coc'}}},
+                  {'diagnostics', sources={'nvim_diagnostic', 'coc'}}},
     lualine_c = {{'filename', path=1}},
     lualine_x = {'encoding', 'fileformat', 'filetype'},
     lualine_y = {'progress'},
@@ -290,19 +338,19 @@ require'lualine'.setup {
 }
 EOF
 
-function s:chadOpen()
-lua << EOF
-   require'bufferline.state'.set_offset(41, "FileTree")
-EOF
-  CHADopen --nofocus
-  if argc() > 0  || exists("s:std_in")
-    wincmd p
-  endif
-endfunction
+" function s:chadOpen()
+" lua << EOF
+"    require'bufferline.state'.set_offset(41, "FileTree")
+" EOF
+"   CHADopen --nofocus
+"   if argc() > 0  || exists("s:std_in")
+"     wincmd p
+"   endif
+" endfunction
 
-autocmd VimEnter * call s:chadOpen()
+" autocmd VimEnter * call s:chadOpen()
 
-autocmd bufenter * if (winnr("$") == 1 && &buftype == "nofile" && &filetype == "CHADTree") | quit | endif
+" autocmd bufenter * if (winnr("$") == 1 && &buftype == "nofile" && &filetype == "CHADTree") | quit | endif
 
 " Move to previous/next
 nnoremap <silent>    <A-,> :BufferPrevious<CR>
@@ -355,3 +403,36 @@ let g:coc_global_extensions = [
     \'coc-yank'
     \]
 autocmd FileType python let b:coc_root_patterns = ['backend', '.git', '.env', 'venv', '.venv', 'setup.cfg', 'setup.py', 'pyproject.toml', 'pyrightconfig.json']
+
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  highlight = {
+    enable = true,
+    custom_captures = {
+      -- Highlight the @foo.bar capture group with the "Identifier" highlight group.
+      ["foo.bar"] = "Identifier",
+    },
+    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+    -- Instead of true it can also be a list of languages
+    additional_vim_regex_highlighting = true,
+  },
+  incremental_selection = {
+    enable = true,
+    keymaps = {
+      init_selection = "gnn",
+      node_incremental = "grn",
+      scope_incremental = "grc",
+      node_decremental = "grm",
+    },
+  },
+  indent = {
+    enable = true
+  }
+}
+EOF
+
+" Shift + J/K moves selected lines down/up in visual mode
+vnoremap J :m '>+1<CR>gv=gv
+vnoremap K :m '<-2<CR>gv=gv
