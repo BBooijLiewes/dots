@@ -356,6 +356,9 @@ lua <<EOF
   require'lspconfig'.jsonls.setup {
     capabilities = capabilities,
   }
+  require'lspconfig'.dartls.setup {
+    capabilities = capabilities,
+  }
 
 
 
