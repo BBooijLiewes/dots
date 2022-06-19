@@ -101,9 +101,11 @@ require('telescope').setup{
   pickers = {
     find_files = {
       theme = "dropdown",
+      hidden = true,
     },
     live_grep = {
       theme = "dropdown",
+      hidden = true,
     },
     -- Default configuration for builtin pickers goes here:
     -- picker_name = {
@@ -122,7 +124,8 @@ require('telescope').setup{
                                        -- the default case_mode is "smart_case"
     },
     file_browser = {
-        theme='dropdown'
+        theme='dropdown',
+        hidden = true,
     },
   }
 }
@@ -224,7 +227,7 @@ nnoremap <silent> <Space>bw :BufferOrderByWindowNumber<CR>
 lua <<EOF
 require'nvim-treesitter.configs'.setup {
   -- One of "all", "maintained" (parsers with maintainers), or a list of languages
-  ensure_installed = "maintained",
+  ensure_installed = "all",
 
   -- Install languages synchronously (only applied to `ensure_installed`)
   sync_install = false,
