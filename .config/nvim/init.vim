@@ -59,7 +59,11 @@ call plug#begin()
     Plug 'hrsh7th/nvim-cmp'
     Plug 'hrsh7th/cmp-vsnip'
     Plug 'hrsh7th/vim-vsnip'
-    Plug 'ray-x/cmp-treesitter'
+    Plug 'ray-x/cmp-treesitter',
+    Plug 'https://git.sr.ht/~whynothugo/lsp_lines.nvim',
+    Plug 'weilbith/nvim-code-action-menu',
+    Plug 'antoinemadec/FixCursorHold.nvim',
+    Plug 'kosayoda/nvim-lightbulb'
 call plug#end()
 
 ""autocmd vimenter * ++nested 
@@ -82,6 +86,10 @@ vnoremap Y "+y
 " paste from yank register
 nnoremap p "0p
 vnoremap p "0p
+
+" in millisecond, used for both CursorHold and CursorHoldI,
+" use updatetime instead if not defined
+let g:cursorhold_updatetime = 100
 
 
 lua << EOF
@@ -141,6 +149,13 @@ map <C-j> :Telescope live_grep<CR>
 
 " double esc to disable hlsearch
 nnoremap <silent> <Esc><Esc> <Esc>:nohlsearch<CR><Esc>
+
+" nvim code actions menu
+map <C-h> :CodeActionMenu<CR>
+
+" Easy vim diff
+nnoremap <silent> <expr> <C-d> &diff ? ':+clo<CR>' : ':GitGutterDiffOrig<CR>'
+
 
 lua << EOF
 require'lualine'.setup {
@@ -362,7 +377,12 @@ lua <<EOF
   require'lspconfig'.dartls.setup {
     capabilities = capabilities,
   }
-
-
-
+  require'lspconfig'.intelephense.setup{
+    capabilities = capabilities,
+  }
+  require("lsp_lines").setup()
+  vim.diagnostic.config({
+      virtual_text = false,
+  })
+  require('nvim-lightbulb').setup({autocmd = {enabled = true}})
 EOF
