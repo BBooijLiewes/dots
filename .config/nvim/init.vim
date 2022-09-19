@@ -2,7 +2,7 @@ set nocompatible
 set encoding=utf-8
 set fileencoding=utf-8
 set number
-set showcmd
+set showcmd 
 set ignorecase
 set autoindent
 set hlsearch
@@ -63,7 +63,9 @@ call plug#begin()
     Plug 'https://git.sr.ht/~whynothugo/lsp_lines.nvim',
     Plug 'weilbith/nvim-code-action-menu',
     Plug 'antoinemadec/FixCursorHold.nvim',
-    Plug 'kosayoda/nvim-lightbulb'
+    Plug 'kosayoda/nvim-lightbulb',
+    Plug 'f-person/git-blame.nvim',
+    Plug 'sindrets/diffview.nvim'
 call plug#end()
 
 ""autocmd vimenter * ++nested 
@@ -153,8 +155,11 @@ nnoremap <silent> <Esc><Esc> <Esc>:nohlsearch<CR><Esc>
 " nvim code actions menu
 map <C-h> :CodeActionMenu<CR>
 
-" Easy vim diff
-nnoremap <silent> <expr> <C-d> &diff ? ':+clo<CR>' : ':GitGutterDiffOrig<CR>'
+" Easy file history
+nnoremap <silent> <expr> <C-x> ':DiffviewFileHistory %<CR>'
+
+" Easily link to gitlab commit
+nnoremap <silent> <expr> <C-l> ':GitBlameOpenCommitURL<CR>'
 
 
 lua << EOF
