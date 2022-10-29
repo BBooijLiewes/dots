@@ -12,7 +12,7 @@ set nowrap
 set hidden
 set smartcase
 set autoread
-set clipboard=unnamedplus
+set clipboard+=unnamedplus
 
 set spelllang=en_gb,nl
 
@@ -36,8 +36,8 @@ set mouse=a
 call plug#begin()
     Plug 'kyazdani42/nvim-web-devicons'
     Plug 'romgrk/barbar.nvim'
+    Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
     Plug 'rktjmp/lush.nvim'
-    Plug 'ellisonleao/gruvbox.nvim'
 	Plug 'psliwka/vim-smoothie'
 	Plug 'mbbill/undotree'
     Plug 'nvim-lualine/lualine.nvim'
@@ -66,12 +66,12 @@ call plug#begin()
     Plug 'kosayoda/nvim-lightbulb',
     Plug 'f-person/git-blame.nvim',
     Plug 'sindrets/diffview.nvim'
+    Plug 'nvim-lua/plenary.nvim'
+    Plug 'narutoxy/silicon.lua'
 call plug#end()
 
 ""autocmd vimenter * ++nested 
-
-set background=dark    " Setting dark mode
-colorscheme gruvbox
+colorscheme tokyonight-night
 
 " remap nerdcomment
 nnoremap <C-_> :call NERDComment(0, "toggle")<CR>
@@ -166,7 +166,7 @@ lua << EOF
 require'lualine'.setup {
   options = {
     icons_enabled = true,
-    theme = 'gruvbox',
+    theme = 'tokyonight',
     component_separators = { left = '', right = ''},
     section_separators = { left = '', right = ''},
     disabled_filetypes = {}
@@ -369,7 +369,7 @@ lua <<EOF
   })
 
   -- Setup lspconfig.
-  local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
+  local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
   -- Replace <YOUR_LSP_SERVER> with each lsp server you've enabled.
   require('lspconfig').pyright.setup {
     capabilities = capabilities
@@ -397,4 +397,17 @@ lua <<EOF
       virtual_text = false,
   })
   require('nvim-lightbulb').setup({autocmd = {enabled = true}})
+
+  require('silicon').setup({
+        output = string.format( 
+                 "/home/bob/Pictures/SILICON_%s-%s-%s_%s-%s.png", 
+                 os.date("%Y"), 
+                 os.date("%m"), 
+                 os.date("%d"), 
+                 os.date("%H"), 
+                 os.date("%M") 
+         ),
+})
 EOF
+
+vnoremap <C-c> :lua require("silicon").visualise_api({to_clip = true})<CR>
