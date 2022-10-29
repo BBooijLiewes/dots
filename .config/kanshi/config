@@ -1,0 +1,27 @@
+profile {
+    output "Unknown 0x06DA 0x00000000" position 0,0 mode 1920x1080 scale 1 transform normal
+    output "Goldstar Company Ltd LG IPS FULLHD " position 1920,0 mode 1920x1080 scale 1 transform normal
+    output "Goldstar Company Ltd LG IPS FULLHD " position 3840,0 mode 1920x1080 scale 1 transform normal
+}
+
+profile {
+    output "Unknown 0x06DA 0x00000000" position 4080,2510 mode 1920x1080 scale 1 transform normal
+    output "Goldstar Company Ltd LG HDR 4K 112NTRL4D758" position 1920,0 mode 3840x2160 scale 1 transform 90
+    output "Dell Inc. DELL U2312HM 59DJP286AXUL" position 0,320 mode 1920x1080 scale 1 transform normal
+    output "Dell Inc. DELL U2312HM 59DJP22FA1CL" position 0,1940 mode 1920x1080 scale 1 transform normal
+}
+
+profile {
+    output "Unknown 0x06DA 0x00000000" position 0,0 mode 1920x1080 scale 1 transform normal
+    output "Dell Inc. DELL P2314H J8J3155FC8KL" position 1920,0 mode 1920x1080 scale 1 transform normal
+    output "Synaptics Inc Non 0x0000FD4E" position 3840,0 mode 1920x1080 scale 1 transform normal
+}
+
+profile {
+    output "Unknown 0x06DA 0x00000000" position 5760,1630 mode 1920x1080 scale 1 transform normal
+    output "Goldstar Company Ltd LG HDR 4K 203NTCZC9275" position 1920,0 mode 3840x2160 scale 1 transform normal
+}
+profile {
+    output "Unknown 0x06DA 0x00000000" position 3840,730 mode 1920x1080 scale 1 transform normal
+    output "Dell Inc. DELL P2314H J8J3149J941B" position 1920,0 mode 1920x1080 scale 1 transform normal
+}
