@@ -65,8 +65,9 @@ call plug#begin()
     Plug 'antoinemadec/FixCursorHold.nvim',
     Plug 'kosayoda/nvim-lightbulb',
     Plug 'f-person/git-blame.nvim',
-    Plug 'sindrets/diffview.nvim'
-    Plug 'nvim-lua/plenary.nvim'
+    Plug 'sindrets/diffview.nvim',
+    Plug 'nvim-lua/plenary.nvim',
+    Plug 'SmiteshP/nvim-navic',
     Plug 'narutoxy/silicon.lua'
 call plug#end()
 
@@ -163,6 +164,14 @@ nnoremap <silent> <expr> <C-l> ':GitBlameOpenCommitURL<CR>'
 
 
 lua << EOF
+
+navic = require 'nvim-navic'
+navic.setup({
+    separator = "  ",
+    highlight = true
+})
+
+
 require'lualine'.setup {
   options = {
     icons_enabled = true,
@@ -175,7 +184,11 @@ require'lualine'.setup {
     lualine_a = {'mode'},
     lualine_b = {'branch', 'diff',
                   {'diagnostics', sources={'nvim_diagnostic'}}},
-    lualine_c = {{'filename', path=1}},
+    lualine_c = {{'filename', path=1},{
+            navic.get_location,
+            cond=navic.is_available,
+            padding={left=1, right=0},
+    }},
     lualine_x = {'encoding', 'fileformat', 'filetype'},
     lualine_y = {'progress'},
     lualine_z = {'location'}
@@ -352,6 +365,11 @@ lua <<EOF
     )
   })
 
+  local on_attach = function(client, bufnr)
+      if client.server_capabilities.documentSymbolProvider then
+          navic.attach(client, bufnr)
+      end
+  end
   -- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
   cmp.setup.cmdline('/', {
     sources = {
@@ -372,25 +390,32 @@ lua <<EOF
   local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
   -- Replace <YOUR_LSP_SERVER> with each lsp server you've enabled.
   require('lspconfig').pyright.setup {
-    capabilities = capabilities
+    capabilities = capabilities,
+    on_attach = on_attach
   }
   require('lspconfig').bashls.setup {
-    capabilities = capabilities
+    capabilities = capabilities,
+    on_attach = on_attach
   }
   require('lspconfig').dockerls.setup {
-    capabilities = capabilities
+    capabilities = capabilities,
+    on_attach = on_attach
   }
   require('lspconfig').tsserver.setup {
-    capabilities = capabilities
+    capabilities = capabilities,
+    on_attach = on_attach
   }
   require'lspconfig'.jsonls.setup {
     capabilities = capabilities,
+    on_attach = on_attach
   }
   require'lspconfig'.dartls.setup {
     capabilities = capabilities,
+    on_attach = on_attach
   }
   require'lspconfig'.intelephense.setup{
     capabilities = capabilities,
+    on_attach = on_attach
   }
   require("lsp_lines").setup()
   vim.diagnostic.config({
