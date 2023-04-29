@@ -14,7 +14,8 @@ set smartcase
 set autoread
 set clipboard+=unnamedplus
 
-set spelllang=en_gb,nl
+set spell
+set spelllang=en,nl
 
 " tabbing
 set softtabstop=0
@@ -32,6 +33,7 @@ set pyxversion=3
 
 " enable scroll
 set mouse=a
+set cmdheight=0
 
 call plug#begin()
     Plug 'kyazdani42/nvim-web-devicons'
@@ -294,9 +296,9 @@ nnoremap <silent> K <cmd>lua vim.lsp.buf.hover()<CR>
 nnoremap <silent> <C-k> <cmd>lua vim.lsp.buf.signature_help()<CR>
 
 " auto-format
-autocmd BufWritePre *.js lua vim.lsp.buf.formatting_sync(nil, 100)
-autocmd BufWritePre *.jsx lua vim.lsp.buf.formatting_sync(nil, 100)
-autocmd BufWritePre *.py lua vim.lsp.buf.formatting_sync(nil, 100)
+" autocmd BufWritePre *.js lua vim.lsp.buf.formatting_sync(nil, 100)
+" autocmd BufWritePre *.jsx lua vim.lsp.buf.formatting_sync(nil, 100)
+" autocmd BufWritePre *.py lua vim.lsp.buf.formatting_sync(nil, 100)
 
 " nvim-cmp
 set completeopt=menu,menuone,noselect
@@ -424,15 +426,13 @@ lua <<EOF
   require('nvim-lightbulb').setup({autocmd = {enabled = true}})
 
   require('silicon').setup({
-        output = string.format( 
-                 "/home/bob/Pictures/SILICON_%s-%s-%s_%s-%s.png", 
-                 os.date("%Y"), 
-                 os.date("%m"), 
-                 os.date("%d"), 
-                 os.date("%H"), 
-                 os.date("%M") 
-         ),
-})
+     font = 'FantasqueSansMono Nerd Font=16',
+     theme = 'Monokai Extended',
+  })
+  require'lspconfig'.sqlls.setup{
+    capabilities = capabilities,
+    on_attach = on_attach
+  }
 EOF
 
 vnoremap <C-c> :lua require("silicon").visualise_api({to_clip = true})<CR>
