@@ -48,7 +48,6 @@ call plug#begin()
     Plug 'tpope/vim-fugitive'
     Plug 'b3nj5m1n/kommentary'
     Plug 'airblade/vim-gitgutter'
-    Plug 'nvim-lua/plenary.nvim'
     Plug 'nvim-telescope/telescope.nvim'
     Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
     Plug 'nvim-telescope/telescope-file-browser.nvim'
@@ -75,6 +74,8 @@ call plug#begin()
     Plug 'hrsh7th/cmp-path'
 
     Plug 'VonHeikemen/lsp-zero.nvim', {'branch': 'v2.x'}
+
+    Plug 'narutoxy/silicon.lua'
 call plug#end()
 
 ""autocmd vimenter * ++nested 
@@ -304,3 +305,34 @@ cmp.setup({
 })
 
 EOF
+
+lua <<EOF
+
+require("silicon").setup({
+        output = string.format( 
+                 "~/Pictures/SILICON_%s-%s-%s_%s-%s.png", 
+                 os.date("%Y"), 
+                 os.date("%m"), 
+                 os.date("%d"), 
+                 os.date("%H"), 
+                 os.date("%M") 
+         ),
+})
+
+vim.keymap.set('v', '<Leader>s', function() require('silicon').visualise_api({to_clip = false}) end )
+vim.keymap.set('v', '<Leader>bs', function() require('silicon').visualise_api({to_clip = true}) end )
+
+vim.api.nvim_create_augroup('SiliconRefresh', { clear = true })
+vim.api.nvim_create_autocmd({ 'ColorScheme' },
+	{
+	group = 'SiliconRefresh',
+	callback = function()
+		silicon_utils.build_tmTheme()
+		silicon_utils.reload_silicon_cache({async = true})
+	end,
+	desc = 'Reload silicon themes cache on colorscheme switch',
+	}
+)
+
+EOF
+
