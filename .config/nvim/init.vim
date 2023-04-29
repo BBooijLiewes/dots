@@ -4,7 +4,7 @@ set fileencoding=utf-8
 set number
 set showcmd 
 set ignorecase
-set autoindent
+set autoindent 
 set hlsearch
 set incsearch
 set scrolloff=10
@@ -48,20 +48,10 @@ call plug#begin()
     Plug 'tpope/vim-fugitive'
     Plug 'b3nj5m1n/kommentary'
     Plug 'airblade/vim-gitgutter'
-    Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'} 
     Plug 'nvim-lua/plenary.nvim'
     Plug 'nvim-telescope/telescope.nvim'
     Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
     Plug 'nvim-telescope/telescope-file-browser.nvim'
-    Plug 'neovim/nvim-lspconfig'
-    Plug 'hrsh7th/cmp-nvim-lsp'
-    Plug 'hrsh7th/cmp-buffer'
-    Plug 'hrsh7th/cmp-path'
-    Plug 'hrsh7th/cmp-cmdline'
-    Plug 'hrsh7th/nvim-cmp'
-    Plug 'saadparwaiz1/cmp_luasnip',
-    Plug 'L3MON4D3/LuaSnip'
-    Plug 'ray-x/cmp-treesitter',
     Plug 'https://git.sr.ht/~whynothugo/lsp_lines.nvim',
     Plug 'weilbith/nvim-code-action-menu',
     Plug 'antoinemadec/FixCursorHold.nvim',
@@ -70,7 +60,21 @@ call plug#begin()
     Plug 'sindrets/diffview.nvim',
     Plug 'nvim-lua/plenary.nvim',
     Plug 'SmiteshP/nvim-navic',
-    Plug 'narutoxy/silicon.lua'
+    Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+
+    " LSP Support
+    Plug 'neovim/nvim-lspconfig'                           " Required
+    Plug 'williamboman/mason.nvim', {'do': ':MasonUpdate'} " Optional
+    Plug 'williamboman/mason-lspconfig.nvim'               " Optional
+
+    " Autocompletion
+    Plug 'hrsh7th/nvim-cmp'     " Required
+    Plug 'hrsh7th/cmp-nvim-lsp' " Required
+    Plug 'L3MON4D3/LuaSnip'     " Required
+    Plug 'hrsh7th/cmp-buffer'
+    Plug 'hrsh7th/cmp-path'
+
+    Plug 'VonHeikemen/lsp-zero.nvim', {'branch': 'v2.x'}
 call plug#end()
 
 ""autocmd vimenter * ++nested 
@@ -208,20 +212,6 @@ require'lualine'.setup {
 }
 EOF
 
-" function s:chadOpen()
-" lua << EOF
-"    require'bufferline.state'.set_offset(41, "FileTree")
-" EOF
-"   CHADopen --nofocus
-"   if argc() > 0  || exists("s:std_in")
-"     wincmd p
-"   endif
-" endfunction
-
-" autocmd VimEnter * call s:chadOpen()
-
-" autocmd bufenter * if (winnr("$") == 1 && &buftype == "nofile" && &filetype == "CHADTree") | quit | endif
-
 " Move to previous/next
 nnoremap <silent>    <A-,> :BufferPrevious<CR>
 nnoremap <silent>    <A-.> :BufferNext<CR>
@@ -259,30 +249,7 @@ nnoremap <silent> <Space>bd :BufferOrderByDirectory<CR>
 nnoremap <silent> <Space>bl :BufferOrderByLanguage<CR>
 nnoremap <silent> <Space>bw :BufferOrderByWindowNumber<CR>
 
-lua <<EOF
-require'nvim-treesitter.configs'.setup {
-  -- One of "all", "maintained" (parsers with maintainers), or a list of languages
-  ensure_installed = "all",
 
-  -- Install languages synchronously (only applied to `ensure_installed`)
-  sync_install = false,
-
-  highlight = {
-    -- `false` will disable the whole extension
-    enable = true,
-
-    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-    -- Using this option may slow down your editor, and you may see some duplicate highlights.
-    -- Instead of true it can also be a list of languages
-    additional_vim_regex_highlighting = false,
-  },
-  indent = {
-    enable = true
-  }
-}
-
-EOF
 " Shift + J/K moves selected lines down/up in visual mode
 vnoremap J :m '>+1<CR>gv=gv
 vnoremap K :m '<-2<CR>gv=gv
@@ -299,140 +266,41 @@ nnoremap <silent> <C-k> <cmd>lua vim.lsp.buf.signature_help()<CR>
 " autocmd BufWritePre *.js lua vim.lsp.buf.formatting_sync(nil, 100)
 " autocmd BufWritePre *.jsx lua vim.lsp.buf.formatting_sync(nil, 100)
 " autocmd BufWritePre *.py lua vim.lsp.buf.formatting_sync(nil, 100)
-
-" nvim-cmp
-set completeopt=menu,menuone,noselect
+"
+"
+lua require'nvim-treesitter.configs'.setup{highlight={enable=true}}
 
 lua <<EOF
 
-  local has_words_before = function()
-    local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-    return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
-  end
 
-  local feedkey = function(key, mode)
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(key, true, true, true), mode, true)
-  end
+local lsp = require('lsp-zero').preset({})
 
-  -- Setup nvim-cmp.
-  local cmp = require'cmp'
-  local luasnip = require("luasnip")
+lsp.on_attach(function(client, bufnr)
+  lsp.default_keymaps({buffer = bufnr})
+end)
 
-  cmp.setup({
-    snippet = {
-      -- REQUIRED - you must specify a snippet engine
-      expand = function(args)
-        --vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
-        require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
-        -- require('snippy').expand_snippet(args.body) -- For `snippy` users.
-        -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
-      end,
-    },
-  mapping = {
-    ['<C-Space>'] = cmp.mapping.confirm({ select = true }),
-    -- ... Your other mappings ...
+-- (Optional) Configure lua language server for neovim
+require('lspconfig').lua_ls.setup(lsp.nvim_lua_ls())
 
-    ["<Tab>"] = cmp.mapping(function(fallback)
-      if luasnip.expand_or_jumpable() then
-        luasnip.expand_or_jump()
-      -- elseif vim.fn.pumvisible() == 1 then
-      --   feedkey("<C-n>")
-      elseif cmp.visible() then
-        cmp.select_next_item()
-      elseif has_words_before() then
-        cmp.complete()
-      else
-        fallback()
-      end
-    end, { "i", "s" }),
+lsp.setup()
 
-    ["<S-Tab>"] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_prev_item()
-      elseif luasnip.jumpable(-1) then
-        luasnip.jump(-1)
-      else
-        fallback()
-      end
-    end, { "i", "s" }),
+local cmp = require('cmp')
+local cmp_action = require('lsp-zero').cmp_action()
 
-    -- ... Your other mappings ...
+cmp.setup({
+  sources = {
+    {name = 'path'},
+    {name = 'nvim_lsp'},
+    {name = 'buffer', keyword_length = 3},
+    {name = 'luasnip', keyword_length = 2},
   },
-    sources = cmp.config.sources({
-      { name = 'nvim_lsp' },
-      { name = 'luasnip' }, -- For luasnip users.
-      { name = 'buffer' },
-      { name = 'path'},
-      { name = 'treesitter'}}
-    )
-  })
+  mapping = {
+    ['<C-f>'] = cmp_action.luasnip_jump_forward(),
+    ['<C-b>'] = cmp_action.luasnip_jump_backward(),
+    ['<CR>'] = cmp.mapping.confirm({select = false}),
+    ['<Tab>'] = cmp_action.tab_complete(),
+    ['<S-Tab>'] = cmp_action.select_prev_or_fallback(),
+  }
+})
 
-  local on_attach = function(client, bufnr)
-      if client.server_capabilities.documentSymbolProvider then
-          navic.attach(client, bufnr)
-      end
-  end
-  -- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
-  cmp.setup.cmdline('/', {
-    sources = {
-      { name = 'buffer' }
-    }
-  })
-
-  -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
-  cmp.setup.cmdline(':', {
-    sources = cmp.config.sources({
-      { name = 'path' }
-    }, {
-      { name = 'cmdline' }
-    })
-  })
-
-  -- Setup lspconfig.
-  local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
-  -- Replace <YOUR_LSP_SERVER> with each lsp server you've enabled.
-  require('lspconfig').pyright.setup {
-    capabilities = capabilities,
-    on_attach = on_attach
-  }
-  require('lspconfig').bashls.setup {
-    capabilities = capabilities,
-    on_attach = on_attach
-  }
-  require('lspconfig').dockerls.setup {
-    capabilities = capabilities,
-    on_attach = on_attach
-  }
-  require('lspconfig').tsserver.setup {
-    capabilities = capabilities,
-    on_attach = on_attach
-  }
-  require'lspconfig'.jsonls.setup {
-    capabilities = capabilities,
-    on_attach = on_attach
-  }
-  require'lspconfig'.dartls.setup {
-    capabilities = capabilities,
-    on_attach = on_attach
-  }
-  require'lspconfig'.intelephense.setup{
-    capabilities = capabilities,
-    on_attach = on_attach
-  }
-  require("lsp_lines").setup()
-  vim.diagnostic.config({
-      virtual_text = false,
-  })
-  require('nvim-lightbulb').setup({autocmd = {enabled = true}})
-
-  require('silicon').setup({
-     font = 'FantasqueSansMono Nerd Font=16',
-     theme = 'Monokai Extended',
-  })
-  require'lspconfig'.sqlls.setup{
-    capabilities = capabilities,
-    on_attach = on_attach
-  }
 EOF
-
-vnoremap <C-c> :lua require("silicon").visualise_api({to_clip = true})<CR>
