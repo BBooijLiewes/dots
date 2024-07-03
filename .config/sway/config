@@ -44,10 +44,16 @@ output * bg ~/.config/sway/background.png fill
 #
 # Example configuration:
 #
+
+set $lock 'swaylock -f -i ~/.config/sway/background.png --indicator-thickness 60 --indicator-radius 110 --inside-color 2D3046 --line-color 2D3046 --ring-color FFD200 -r -n --key-hl-color FFFFFF --separator-color FFFFFF'
+
  exec swayidle -w \
-          timeout 300 'swaylock -f -i ~/.config/sway/background.png' \
+          timeout 300 $lock \
           timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
-          before-sleep 'swaylock -f -i ~/.config/sway/background.png'
+          before-sleep $lock
+
+for_window [class=".*"] inhibit_idle fullscreen
+for_window [app_id=".*"] inhibit_idle fullscreen
 
 # This will lock your screen after 300 seconds of inactivity, then turn off
 # your displays after another 300 seconds, and turn your screens back on when
@@ -77,11 +83,14 @@ output * bg ~/.config/sway/background.png fill
     # Kill focused window
     bindsym $mod+Shift+q kill
 
+    # Screen capture
+    bindsym $mod+z exec bash -c 'grim -g "$(slurp)" - | wl-copy'
+
     # Start your launcher
     bindsym $mod+d exec $menu
 
     # lock with x
-    bindsym $mod+Shift+x exec 'swaylock -f -i ~/.config/sway/background.png'
+    bindsym $mod+Shift+x exec $lock
 
     # Drag floating windows by holding down $mod and left mouse button.
     # Resize them with right mouse button + $mod.
@@ -245,11 +254,11 @@ exec /home/bob/.local/kitty.app/bin/kitty
 
 workspace 3
 
-exec firefox
+exec qutebrowser
 
 workspace 4
 
-exec mailspring
+exec /home/bob/.local/kitty.app/bin/kitty -e neomutt
 
 workspace 5
 
@@ -262,5 +271,12 @@ exec_always /home/bob/.config/waybar/launch.sh &
 
 exec_always pkill /home/bob/tools/kanshi/build/kanshi; exec /home/bob/tools/kanshi/build/kanshi
 
+exec eval $(gnome-keyring-daemon --start)
+exec export SSH_AUTH_SOCK
+
+exec sway-audio-idle-inhibit
+
+
 
 include @sysconfdir@/sway/config.d/*
+
