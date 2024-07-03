@@ -3,7 +3,6 @@ profile {
     output "Goldstar Company Ltd LG IPS FULLHD " position 1920,0 mode 1920x1080 scale 1 transform normal
     output "Goldstar Company Ltd LG IPS FULLHD " position 3840,0 mode 1920x1080 scale 1 transform normal
 }
-
 profile {
     output "Unknown 0x06DA 0x00000000" position 4080,2510 mode 1920x1080 scale 1 transform normal
     output "Goldstar Company Ltd LG HDR 4K 112NTRL4D758" position 1920,0 mode 3840x2160 scale 1 transform 90
@@ -18,10 +17,34 @@ profile {
 }
 
 profile {
-    output "Unknown 0x06DA 0x00000000" position 5760,1630 mode 1920x1080 scale 1 transform normal
-    output "Goldstar Company Ltd LG HDR 4K 203NTCZC9275" position 1920,0 mode 3840x2160 scale 1 transform normal
-}
-profile {
     output "Unknown 0x06DA 0x00000000" position 3840,730 mode 1920x1080 scale 1 transform normal
     output "Dell Inc. DELL P2314H J8J3149J941B" position 1920,0 mode 1920x1080 scale 1 transform normal
+}
+
+profile {
+    output "Unknown 0x06DA 0x00000000" position 0,0 mode 1920x1080 scale 1 transform normal
+    output "Unknown 0x0001 0x00007F31" position 1920,0 mode 1920x1080 scale 1 transform normal
+}
+
+profile {
+    output "Unknown 0x06DA 0x00000000" position 0,1810 mode 1920x1080 scale 1 transform normal
+    output "Goldstar Company Ltd LG HDR 4K 203NTCZC9275" position 1920,0 mode 3840x2160 scale 1 transform normal
+}
+
+profile {
+    output "Unknown 0x06DA 0x00000000" position 0,1080 mode 1920x1080 scale 1 transform normal
+    output "Goldstar Company Ltd LG HDR 4K 203NTABC9072" position 5760,0 mode 3840x2160 scale 1 transform normal
+    output "Goldstar Company Ltd LG HDR 4K 203NTABC9264" position 1920,0 mode 3840x2160 scale 1 transform normal
+}
+profile {
+    output "Unknown 0x06DA 0x00000000" position 8320,340 mode 1920x1080 scale 1 transform normal
+    output "Dell Inc. DELL S2721D CTCFP43" position 1830,200 mode 2560x1440 scale 1 transform normal
+    output "Dell Inc. DELL P3222QE DQ2S6H3" position 4480,0 mode 3840x2160 scale 1 transform normal
+}
+
+profile {
+
+    output "Unknown 0x06DA 0x00000000" position 7040,570 mode 1920x1080 scale 1 transform normal
+    output "Dell Inc. DELL S2721D CY8HP43" position 1920,570 mode 2560x1440 scale 1 transform normal
+    output "Dell Inc. DELL S2721D 1L9HP43" position 4480,370 mode 2560x1440 scale 1 transform normal
 }
