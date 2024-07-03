@@ -78,7 +78,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git docker docker-compose zsh-autosuggestions zsh-syntax-highlighting)
+plugins=(git docker docker-compose zsh-autosuggestions zsh-syntax-highlighting zsh-vi-mode)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -119,3 +119,59 @@ export NVM_DIR="$HOME/.nvm"
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 source ~/.dotfiles/lib/zsh-autoenv/autoenv.zsh
+export _JAVA_AWT_WM_NONREPARENTING=1
+
+export ANDROID_SDK_ROOT=$HOME/Android/Sdk
+export PATH=$PATH:$ANDROID_SDK_ROOT/emulator
+export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
+
+alias vim="nvim"
+alias vi="nvim"
+alias oldvim="vim"
+
+
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+
+eval $(thefuck --alias)
+export MAILSYNC_MUTE=1
+
+alias vdirsyncer="~/tools/vdirsyncer/.venv/bin/vdirsyncer"
+alias bluetuith="~/tools/bluetuith/bluetuith-bin"
+export PATH=$PATH:/usr/local/go/bin
+
+# fzf
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+ln -s $(which fdfind) ~/.local/bin/fd
+
+# fd for fzf
+#
+export FZF_DEFAULT_COMMAND='fd --type file --follow --hidden --exclude .git'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
+
+_fzf_compgen_path() {
+  fd --hidden --exclude .git . "$1"
+}
+
+_fzf_compgen_dir() {
+  fd --type=d --hidden --exclude .git . "$1"
+}
+
+
+# To initialize zoxide, add this to your configuration (usually ~/.zshrc):
+#
+eval "$(zoxide init --cmd cd zsh)"
+
+# eza setup alias ls
+alias ls='eza'
+alias l='eza -lbF --git'
+alias ll='eza -lbGF --git'
+alias llm='eza -lbGd --git --sort=modified'
+alias la='eza -lbhHigUmuSa --time-style=long-iso --git --color-scale'
+alias lx='eza -lbhHigUmuSa@ --time-style=long-iso --git --color-scale'
+
+# specialty views
+alias lS='eza -1'
+alias lt='eza --tree --level=2'
+alias l.="eza -a | grep -E '^\.'"
