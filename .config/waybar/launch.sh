@@ -1,10 +1,10 @@
 #!/usr/bin/env sh
 
 # Terminate already running bar instances
-killall -q /home/bob/tools/Waybar/build/waybar
+killall -q waybar
 
 # Wait until the processes have been shut down
-while pgrep -x /home/bob/tools/Waybar/build/waybar >/dev/null; do sleep 1; done
+while pgrep -x waybar >/dev/null; do sleep 1; done
 
 # Launch main
-/home/bob/tools/Waybar/build/waybar
+waybar

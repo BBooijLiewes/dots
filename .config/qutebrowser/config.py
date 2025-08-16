@@ -12,7 +12,7 @@ config.bind(',P', 'spawn --userscript qute-lastpass')
 config.bind(',cp', 'spawn --userscript ~/.config/qutebrowser/userscripts/qute-phabticket')
 
 config.bind(',pu', 'spawn --userscript qute-lastpass --username-only')
-config.bind(',pu', 'spawn --userscript qute-lastpass --username-only')
+config.bind(',pp', 'spawn --userscript qute-lastpass --password-only')
 config.bind(',do', 'devtools')
 config.bind(',df', 'devtools-focus')
 

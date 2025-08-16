@@ -18,7 +18,6 @@ def main():
     print(f"Retrieving ticket num from: {url}")
 
     if "https://phabricator.codeyellow.nl/" not in url:
-        import sys
         print("URL is not a phabricator link from CodeYellow!")
         sys.exit(1)
 
