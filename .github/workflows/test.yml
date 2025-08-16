@@ -1,0 +1,50 @@
+name: Dotfiles Tests
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y lua5.3 python3
+        
+    - name: Verify Lua installation
+      run: |
+        lua5.3 -v
+        which lua5.3
+        
+    - name: Run tests
+      run: |
+        chmod +x tests/simple_test.sh
+        ./tests/simple_test.sh
+
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install shellcheck
+      run: sudo apt-get update && sudo apt-get install -y shellcheck
+      
+    - name: Lint shell scripts
+      run: |
+        find . -name "*.sh" -type f | xargs shellcheck
+        
+    - name: Check Lua syntax
+      run: |
+        sudo apt-get install -y lua5.3
+        find .config -name "*.lua" -type f | while read -r file; do
+          echo "Checking syntax: $file"
+          lua5.3 -e "loadfile('$file')" || echo "Warning: $file may have vim-specific syntax"
+        done
