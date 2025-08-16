@@ -21,6 +21,15 @@ This repository contains my personal dotfiles and configuration for a complete L
 ├── 📊 waybar/         # Status bar configuration
 ├── 🌐 qutebrowser/    # Vim-like web browser
 └── 🎨 rofi/           # Application launcher
+
+tests/
+├── 🧪 lua/            # Neovim Lua configuration tests
+├── 🐚 shell/          # Shell script and utility tests
+├── 🔧 run_tests.sh    # Main test runner
+└── 📋 simple_test.sh  # Quick validation tests
+
+.github/
+└── 🚀 workflows/      # CI/CD automation
 ```
 
 ## ⚡ Key Components
@@ -86,6 +95,15 @@ This repository contains my personal dotfiles and configuration for a complete L
    # (Instructions vary by distribution)
    ```
 
+5. **Validate installation**:
+   ```bash
+   # Run configuration tests
+   ./tests/run_tests.sh
+   
+   # Quick validation
+   ./tests/simple_test.sh
+   ```
+
 ## 🎨 Customization
 
 ### 🔧 Neovim
@@ -124,9 +142,25 @@ This repository contains my personal dotfiles and configuration for a complete L
 ├── waybar/
 │   ├── config                     # Status bar config
 │   ├── style.css                  # Styling
-│   └── launch.sh                  # Launch script
+│   ├── launch.sh                  # Launch script
+│   └── modules/
+│       └── powermenu.sh           # Power management module
 └── qutebrowser/
     └── config.py                  # Browser configuration
+
+tests/
+├── lua/
+│   ├── test_keymaps.lua           # Keymap functionality tests
+│   ├── test_lazy_setup.lua        # Plugin setup validation
+│   └── test_settings.lua          # Settings configuration tests
+├── shell/
+│   └── test_waybar_modules.sh     # Waybar module tests
+├── run_tests.sh                   # Comprehensive test runner
+└── simple_test.sh                 # Quick validation tests
+
+.github/
+└── workflows/
+    └── test.yml                   # CI/CD pipeline configuration
 ```
 
 ## 🎯 Key Features
@@ -138,6 +172,8 @@ This repository contains my personal dotfiles and configuration for a complete L
 - ✅ **LSP-powered development** environment
 - ✅ **Git integration** throughout
 - ✅ **Wayland-native** applications
+- ✅ **Comprehensive testing suite** with CI/CD
+- ✅ **Automated configuration validation**
 
 ## 🛠️ Tech Stack
 
@@ -150,6 +186,42 @@ This repository contains my personal dotfiles and configuration for a complete L
 | **Browser** | Qutebrowser | Vim-like web browsing |
 | **Launcher** | Rofi | Application launcher |
 | **Font** | FiraCode Nerd Font | Programming font with ligatures |
+| **Testing** | Custom Test Suite | Lua & Shell script validation |
+| **CI/CD** | GitHub Actions | Automated testing & linting |
+
+## 🧪 Testing
+
+This repository includes a comprehensive testing suite to ensure configuration reliability:
+
+### Running Tests
+
+```bash
+# Run all tests
+./tests/run_tests.sh
+
+# Run specific test categories
+./tests/run_tests.sh lua      # Neovim Lua configuration tests
+./tests/run_tests.sh shell    # Shell script tests
+./tests/run_tests.sh integration  # Integration tests
+
+# Quick validation
+./tests/simple_test.sh
+```
+
+### Test Categories
+
+- **🧪 Lua Tests**: Validate Neovim configurations, plugin setups, and keymaps
+- **🐚 Shell Tests**: Test Waybar modules and shell script functionality  
+- **🔧 Integration Tests**: End-to-end configuration validation
+- **🚀 CI/CD**: Automated testing on every push and pull request
+
+### Continuous Integration
+
+GitHub Actions automatically:
+- ✅ Runs all tests on push/PR
+- ✅ Validates Lua syntax
+- ✅ Lints shell scripts with shellcheck
+- ✅ Ensures configuration integrity
 
 ## 🤝 Contributing
 
@@ -158,7 +230,10 @@ Feel free to fork this repository and adapt it to your needs! If you have improv
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Submit a pull request
+4. **Run tests**: `./tests/run_tests.sh`
+5. Submit a pull request
+
+All contributions are automatically tested via GitHub Actions.
 
 ## 📝 License
 
