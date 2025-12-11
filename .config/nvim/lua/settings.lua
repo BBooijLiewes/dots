@@ -41,4 +41,4 @@ vim.opt.showmode = false
 -- set both full and relative line numbers
 vim.opt.nu = true
 vim.opt.relativenumber = true
-vim.o.statuscolumn = "%s %l %r "
+vim.opt.statuscolumn = "%s %{v:relnum} %{v:lnum}"
