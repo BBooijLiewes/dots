@@ -1,9 +1,4 @@
 profile {
-    output "Unknown 0x06DA 0x00000000" position 0,0 mode 1920x1080 scale 1 transform normal
-    output "Goldstar Company Ltd LG IPS FULLHD " position 1920,0 mode 1920x1080 scale 1 transform normal
-    output "Goldstar Company Ltd LG IPS FULLHD " position 3840,0 mode 1920x1080 scale 1 transform normal
-}
-profile {
     output "Unknown 0x06DA 0x00000000" position 4080,2510 mode 1920x1080 scale 1 transform normal
     output "Goldstar Company Ltd LG HDR 4K 112NTRL4D758" position 1920,0 mode 3840x2160 scale 1 transform 90
     output "Dell Inc. DELL U2312HM 59DJP286AXUL" position 0,320 mode 1920x1080 scale 1 transform normal
@@ -36,6 +31,7 @@ profile {
     output "Goldstar Company Ltd LG HDR 4K 203NTABC9072" position 5760,0 mode 3840x2160 scale 1 transform normal
     output "Goldstar Company Ltd LG HDR 4K 203NTABC9264" position 1920,0 mode 3840x2160 scale 1 transform normal
 }
+
 profile {
     output "Unknown 0x06DA 0x00000000" position 8320,340 mode 1920x1080 scale 1 transform normal
     output "Dell Inc. DELL S2721D CTCFP43" position 1830,200 mode 2560x1440 scale 1 transform normal
@@ -43,7 +39,6 @@ profile {
 }
 
 profile {
-
     output "Unknown 0x06DA 0x00000000" position 7040,570 mode 1920x1080 scale 1 transform normal
     output "Dell Inc. DELL S2721D CY8HP43" position 1920,570 mode 2560x1440 scale 1 transform normal
     output "Dell Inc. DELL S2721D 1L9HP43" position 4480,370 mode 2560x1440 scale 1 transform normal
@@ -69,4 +64,3 @@ profile docked {
         transform 90
     }
 }
-
