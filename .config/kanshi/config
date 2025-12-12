@@ -50,23 +50,23 @@ profile {
 }
 
 profile docked {
+    output eDP-1 {
+        mode 1920x1200@60
+        position 6710,4811
+        scale 1
+    }
+
     output HDMI-A-1 {
         mode 3840x2160@60
-        position 0,0
+        position 710,4187
         scale 1
     }
 
     output DP-3 {
         mode 3840x2160@60
-        position 3840,0
+        position 4550,3144
         scale 1
         transform 90
-    }
-
-    output eDP-1 {
-        mode 1920x1200@60
-        position 960,2160
-        scale 1
     }
 }
 
