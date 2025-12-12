@@ -132,7 +132,6 @@ alias oldvim="vim"
 
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 
-eval $(thefuck --alias)
 export MAILSYNC_MUTE=1
 
 alias vdirsyncer="~/tools/vdirsyncer/.venv/bin/vdirsyncer"
