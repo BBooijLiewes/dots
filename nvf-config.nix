@@ -1,6 +1,15 @@
-# nvf-config-final.nix
+# nvf-config.nix
 # Optimized Neovim configuration for Django/React/Docker development
 # Modern alternatives with preserved keybindings where possible
+#
+# IMPORTANT: Make sure nvf is added to your flake inputs and imported:
+#
+# In flake.nix:
+#   inputs.nvf.url = "github:notashelf/nvf";
+#
+# In home-manager configuration:
+#   imports = [ inputs.nvf.homeManagerModules.default ];
+#
 {
   config,
   pkgs,
