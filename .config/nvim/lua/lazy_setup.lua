@@ -50,7 +50,6 @@ require("lazy").setup({
 	"hrsh7th/cmp-path",
 
 	{ "VonHeikemen/lsp-zero.nvim", branch = "v3.x" },
-	"narutoxy/silicon.lua",
 
 	-- colours
 	"brenoprata10/nvim-highlight-colors",
@@ -65,49 +64,6 @@ require("lazy").setup({
 		opts = {},
 	},
 	"tris203/precognition.nvim",
-	{
-		"olimorris/codecompanion.nvim",
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-			"nvim-treesitter/nvim-treesitter",
-		},
-		opts = {
-			adapters = {
-				http = {
-					opts = { show_defaults = false, show_model_choices = false },
-					chat_model = function()
-						return require("codecompanion.adapters").extend("ollama", {
-							name = "GPT-OSS 20B (Chat)",
-							env = { url = "AI_URL" }, -- use remote host
-							schema = { model = { default = "gpt-oss:20b" } },
-						})
-					end,
-					inline_model = function()
-						return require("codecompanion.adapters").extend("ollama", {
-							name = "GPT-OSS 20B (Inline)",
-							env = { url = "AI_URL" },
-							schema = { model = { default = "gpt-oss:20b" } },
-						})
-					end,
-				},
-			},
-			strategies = {
-				chat = { adapter = "chat_model" },
-				agent = { adapter = "chat_model" },
-				inline = {
-					adapter = "inline_model",
-					keymaps = {
-						accept_change = { modes = { n = "ga" } },
-						reject_change = { modes = { n = "gr" }, opts = { nowait = true } },
-					},
-				},
-				cmd = { adapter = "inline_model" },
-			},
-		},
-		config = function(_, opts)
-			require("codecompanion").setup(opts)
-		end,
-	},
 }, {
 	install = { missing = true, colorscheme = { "tokyonight-night" } },
 })

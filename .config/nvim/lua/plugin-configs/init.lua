@@ -1,7 +1,6 @@
 require('plugin-configs.lsp')
 require('plugin-configs.lualine')
 require('plugin-configs.nvim-treesitter')
-require('plugin-configs.silicon')
 require('plugin-configs.telescope')
 require('plugin-configs.nvim-highlight-colors')
 require('plugin-configs.gitsigns')
