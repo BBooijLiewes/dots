@@ -45,13 +45,11 @@
         grammars = [
           # Python/Django
           pkgs.vimPlugins.nvim-treesitter.builtGrammars.python
-          pkgs.vimPlugins.nvim-treesitter.builtGrammars.htmldjango
           
-          # JavaScript/React
+          # JavaScript/React (tsx includes jsx support)
           pkgs.vimPlugins.nvim-treesitter.builtGrammars.javascript
           pkgs.vimPlugins.nvim-treesitter.builtGrammars.typescript
           pkgs.vimPlugins.nvim-treesitter.builtGrammars.tsx
-          pkgs.vimPlugins.nvim-treesitter.builtGrammars.jsx
           
           # Web
           pkgs.vimPlugins.nvim-treesitter.builtGrammars.html
