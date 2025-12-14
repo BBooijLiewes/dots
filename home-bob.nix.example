@@ -1,0 +1,16 @@
+{ config, pkgs, dots, inputs, ... }:  # ← Add inputs parameter
+
+{
+  # Import nvf home-manager module
+  imports = [
+    inputs.nvf.homeManagerModules.default  # ← Add this
+    ./nvf-config.nix                       # ← Add this
+  ];
+
+  home.username = "bob";
+  home.homeDirectory = "/home/bob";
+  home.stateVersion = "24.11";
+
+  # Your existing home-manager configuration...
+  # (keep everything else you already have)
+}
