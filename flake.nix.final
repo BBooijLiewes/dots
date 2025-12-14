@@ -1,0 +1,56 @@
+{
+  description = "Bob's NixOS with Hyprland + Home Manager + dots wallpaper";
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+
+    home-manager = {
+      url = "github:nix-community/home-manager/release-25.11";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Your dotfiles repo (only used for the background image)
+    dots = {
+      url = "github:BBooijLiewes/dots";
+      flake = false;
+    };
+
+    # nvf for Neovim configuration
+    nvf = {
+      url = "github:notashelf/nvf";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = { self, nixpkgs, home-manager, dots, nvf, ... }@inputs:
+  let
+    system = "x86_64-linux";
+  in {
+    nixosConfigurations.my-nixos = nixpkgs.lib.nixosSystem {
+      inherit system;
+      
+      # Pass inputs to all modules
+      specialArgs = { inherit inputs; };
+
+      modules = [
+        ./configuration.nix
+
+        # Home Manager as a NixOS module
+        home-manager.nixosModules.home-manager
+
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+
+          # Pass dots AND inputs into Home Manager configs
+          home-manager.extraSpecialArgs = {
+            inherit dots inputs;
+          };
+
+          # Home Manager config for user "bob"
+          home-manager.users.bob = import ./home-bob.nix;
+        }
+      ];
+    };
+  };
+}
