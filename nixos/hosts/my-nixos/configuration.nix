@@ -250,6 +250,8 @@ environment.systemPackages = with pkgs; [
     nodejs_20
     pnpm
     yarn
+    yq
+    hashdeep
 
     # network tooling
     bind.dnsutils
