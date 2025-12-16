@@ -67,6 +67,8 @@
 
   home.packages = with pkgs; [
     zoxide
+    grim
+    slurp
   ];
 
   ########################################
@@ -255,8 +257,7 @@
     # Screenshots
     ###############################
 
-    bind = ,      Print, exec, grim ~/Pictures/Screenshots/screenshot-$(date +'%Y-%m-%d-%H%M%S').png
-    bind = SHIFT, Print, exec, grim -g "$(slurp)" - | wl-copy
+    bind = SHIFT, Z, exec, bash -c 'grim -g "$(slurp)" - | wl-copy'
 
     ###############################
     # Window rules
