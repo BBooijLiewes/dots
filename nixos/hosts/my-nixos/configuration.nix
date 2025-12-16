@@ -345,6 +345,64 @@ environment.systemPackages = with pkgs; [
     ln -sf ${pkgs.bashInteractive}/bin/bash /bin/sh
   '';
 
+########################################
+# nix-ld
+########################################
+programs.nix-ld = {
+  enable = true;
+
+  libraries = with pkgs; [
+    # Base / already needed
+    glib
+    nspr
+    nss
+    dbus
+    atk
+    cups
+    cairo
+    pango
+    gtk3
+    gdk-pixbuf
+
+    # Graphics (GBM/GL/DRM)
+    libgbm
+    mesa
+    libdrm
+    libglvnd
+
+    # Audio / notifications / secrets
+    alsa-lib
+    libnotify
+    libsecret
+    pulseaudio
+
+    # Wayland / input
+    wayland
+    libxkbcommon
+
+    # XWayland / X11 (common Electron deps)
+    xorg.libX11
+    xorg.libXScrnSaver
+    xorg.libXtst
+    xorg.libXcomposite
+    xorg.libXdamage
+    xorg.libXext
+    xorg.libXfixes
+    xorg.libXrandr
+    xorg.libxcb
+    xorg.libXi
+    xorg.libXcursor
+    xorg.libXrender
+    xorg.libXinerama
+
+    # Accessibility
+    at-spi2-core
+    at-spi2-atk
+
+    # Misc
+    expat
+  ];
+};
 
   ########################################
   # Misc
