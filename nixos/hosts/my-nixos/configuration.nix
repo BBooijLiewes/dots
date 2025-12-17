@@ -304,6 +304,12 @@ environment.systemPackages = with pkgs; [
     # Networking / VPN / tray
     tailscale
     networkmanagerapplet
+
+    # Unzip files
+    file-roller
+    unzip
+    p7zip
+    unrar
   ];
 
   ########################################
