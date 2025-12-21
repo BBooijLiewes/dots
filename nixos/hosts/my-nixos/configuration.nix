@@ -299,7 +299,8 @@ environment.systemPackages = with pkgs; [
     zulip
     spotify
     ulauncher
-    remmina         # <-- added
+    remmina
+    hyprpicker
 
     # Networking / VPN / tray
     tailscale
@@ -349,6 +350,8 @@ environment.systemPackages = with pkgs; [
     mkdir -p /bin
     ln -sf ${pkgs.bashInteractive}/bin/bash /bin/bash
     ln -sf ${pkgs.bashInteractive}/bin/bash /bin/sh
+    ln -sf ${pkgs.zsh}/bin/zsh /bin/zsh
+
   '';
 
 ########################################

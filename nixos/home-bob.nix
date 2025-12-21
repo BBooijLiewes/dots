@@ -66,10 +66,23 @@
   ########################################
 
   home.packages = with pkgs; [
+    libqalculate
     zoxide
     grim
     slurp
   ];
+
+  programs.bat.enable = true;
+  programs.btop.enable = true;
+
+  programs.eza = {
+    enable = true;          # install + manage eza
+    git = true;             # add --git
+    icons = "auto";         # add --icons=auto
+    extraOptions = [        # extra flags you always want
+      "--group-directories-first"
+    ];
+  };
 
   ########################################
   # Neovim package and order
@@ -573,6 +586,7 @@
     };
   };
 
+  services.ssh-agent.enable = true;
   programs.ssh = {
     enable = true;
 
@@ -592,6 +606,18 @@
     enableCompletion = true;
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
+
+    shellAliases = {
+      # eza as ls
+      ls = "eza --icons=auto --group-directories-first";
+      ll = "eza -l --git --icons=auto --group-directories-first";
+      la = "eza -la --git --icons=auto --group-directories-first";
+      lt = "eza --tree --icons=auto";
+
+      # optional: your other “replacements”
+      cat  = "bat";
+      htop = "btop";
+    };
 
     # Keep Oh My Zsh for plugins, prompt handled by Starship
     oh-my-zsh = {
