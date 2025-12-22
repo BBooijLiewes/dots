@@ -20,6 +20,8 @@
   ########################################
 
   boot.loader.systemd-boot.enable = true;
+  # Keep the boot menu from growing forever
+  boot.loader.systemd-boot.configurationLimit = 10;
   boot.loader.efi.canTouchEfiVariables = true;
 
   boot.initrd.luks.devices."luks-4bdf8f69-d4c1-4ab7-b3ff-d1c214ee354a".device =
@@ -58,6 +60,25 @@
 
   networking.networkmanager.enable = true;
   networking.firewall.enable = true;
+
+  ########################################
+  # Builds cleanup
+  ########################################
+
+  nix = {
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 14d";
+    };
+
+    optimise = {
+      automatic = true;
+      dates = [ "weekly" ];
+    };
+
+    settings.auto-optimise-store = true;
+  };
 
   ########################################
   # User
