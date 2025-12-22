@@ -67,7 +67,6 @@
 
   home.packages = with pkgs; [
     libqalculate
-    zoxide
     grim
     slurp
   ];
@@ -601,6 +600,15 @@
     '';
   };
 
+  programs.zoxide = {
+      enable = true;
+      enableZshIntegration = true;
+
+      # Replace `cd` with zoxide's wrapped version
+      # (interactive variant becomes `cdi`)
+      options = [ "--cmd cd" ];
+  };
+
   programs.zsh = {
     enable = true;
     enableCompletion = true;
@@ -639,10 +647,6 @@
       # Python shortcuts
       alias python="python3"
       alias pip="python3 -m pip"
-
-      # zoxide jump
-      eval "$(zoxide init zsh)"
-
     '';
   };
 }
