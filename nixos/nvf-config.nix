@@ -204,6 +204,9 @@ in
         autotagHtml = true;
       };
 
+      # searchcase
+      searchCase = "smart";
+
       # LSP (note: nvf moved enableLSP -> vim.lsp.enable)
       lsp = {
         enable = true;
@@ -221,7 +224,24 @@ in
       autopairs.nvim-autopairs.enable = true; # 
 
       # Telescope
-      telescope.enable = true;
+      telescope = {
+        enable = true;
+
+        extensions = [
+          {
+            name = "fzf";
+            packages = [ pkgs.vimPlugins.telescope-fzf-native-nvim ];
+            setup = {
+              fzf = {
+                fuzzy = true;
+                override_generic_sorter = true;
+                override_file_sorter = true;
+                case_mode = "smart_case"; # or "ignore_case"
+              };
+            };
+          }
+        ];
+      };
 
       # Git
       git = {
@@ -539,6 +559,20 @@ in
         { key = "<leader>fb"; mode = "n"; action = "<cmd>Telescope buffers<CR>"; desc = "Find buffers"; }
         { key = "<leader>fh"; mode = "n"; action = "<cmd>Telescope help_tags<CR>"; desc = "Help tags"; }
         { key = "<leader>fr"; mode = "n"; action = "<cmd>Telescope oldfiles<CR>"; desc = "Recent files"; }
+
+        # buffer traversal
+        {
+          key = "<A-,>";
+          mode = "n";
+          action = "<cmd>bprevious<CR>";
+          desc = "Previous buffer";
+        }
+        {
+          key = "<A-.>";
+          mode = "n";
+          action = "<cmd>bnext<CR>";
+          desc = "Next buffer";
+        }
 
         # Git
         { key = "<leader>gg"; mode = "n"; action = "<cmd>Neogit<CR>"; desc = "Open Neogit"; }
