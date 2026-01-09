@@ -299,6 +299,13 @@ environment.systemPackages = with pkgs; [
     # VsCode
     vscode
 
+    # Libreoffice and others
+    libreoffice-fresh
+    hunspell
+    hunspellDicts.en_US
+    hunspellDicts."en_GB-large"
+    hunspellDicts.nl_NL
+
     # Wayland ecosystem
     waybar
     wofi
