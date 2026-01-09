@@ -275,7 +275,14 @@ in
       };
 
       # Tabline
-      tabline.nvimBufferline.enable = true;
+      tabline.nvimBufferline = {
+        enable = true;
+
+        setupOpts.options = {
+          mode = "tabs";   # show tabpages, not buffers
+          sort_by = "tabs";
+        };
+      };
 
       # Utility (use *current* option paths)
       utility = {
@@ -579,18 +586,10 @@ in
         { key = "<leader>fr"; mode = "n"; action = "<cmd>Telescope oldfiles<CR>"; desc = "Recent files"; }
 
         # buffer traversal
-        {
-          key = "<A-,>";
-          mode = "n";
-          action = "<cmd>bprevious<CR>";
-          desc = "Previous buffer";
-        }
-        {
-          key = "<A-.>";
-          mode = "n";
-          action = "<cmd>bnext<CR>";
-          desc = "Next buffer";
-        }
+        { key = "<A-,>"; mode = "n"; action = "<cmd>tabprevious<CR>"; desc = "Previous tab"; }
+        { key = "<A-.>"; mode = "n"; action = "<cmd>tabnext<CR>";     desc = "Next tab"; }
+        { key = "<A-c>"; mode = "n"; action = "<cmd>tabclose<CR>";    desc = "Close tab"; }
+
 
         # Git
         { key = "<leader>gg"; mode = "n"; action = "<cmd>Neogit<CR>"; desc = "Open Neogit"; }
