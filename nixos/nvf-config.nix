@@ -249,6 +249,21 @@ in
         gitsigns = {
           enable = true;
           codeActions.enable = true;
+
+          setupOpts = {
+            current_line_blame = true;
+
+            current_line_blame_opts = {
+              virt_text = true;
+              virt_text_pos = "right_align"; # right side of the window
+              delay = 400;                  # show after a short pause
+              ignore_whitespace = true;
+              virt_text_priority = 100;
+              use_focus = true;
+            };
+
+            current_line_blame_formatter = "<author> • <author_time:%Y-%m-%d> • <summary>";
+          };
         };
         neogit.enable = true;
       };
