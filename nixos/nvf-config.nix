@@ -243,6 +243,23 @@ in
         ];
       };
 
+    
+      diagnostics = {
+        enable = true;
+
+        config = {
+          virtual_text = false;
+          virtual_lines = false;
+          signs = false;
+          update_in_insert = false;
+
+          # underline ONLY errors
+          underline = lib.generators.mkLuaInline ''
+            { severity = { min = vim.diagnostic.severity.ERROR } }
+          '';
+        };
+      };
+
       # Git
       git = {
         enable = true;
@@ -444,14 +461,14 @@ in
           vim.g.loaded_ruby_provider = 0
         '';
 
-	dockerfile_lsp = ''
-	  pcall(function()
-	    local lspconfig = require("lspconfig")
-	    if lspconfig.dockerls then
-	      lspconfig.dockerls.setup({})
-	    end
-	  end)
-	'';
+        dockerfile_lsp = ''
+          pcall(function()
+            local lspconfig = require("lspconfig")
+            if lspconfig.dockerls then
+              lspconfig.dockerls.setup({})
+            end
+          end)
+        '';
 
         python_settings = ''
           vim.g.pyxversion = 3
@@ -506,65 +523,37 @@ in
           end
         '';
 
-        diag_hover = ''
-          local defaults = {
-            updatetime   = 250,
-            scope        = "cursor",
-            border       = "rounded",
-            focus        = false,
-            focusable    = false,
-            close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
-            severity_min = nil,
-            filetypes    = nil,
-          }
+        diagnostics_hover_errors_only = ''
+          -- how long you need to pause before CursorHold triggers (ms)
+          vim.opt.updatetime = 700
 
-          local augroup
-          local function line_diags(bufnr, line, severity_min)
-            local diags = vim.diagnostic.get(bufnr, { lnum = line })
-            if severity_min then
-              diags = vim.tbl_filter(function(d)
-                return d.severity <= severity_min
-              end, diags)
-            end
-            return diags
-          end
+          local group = vim.api.nvim_create_augroup("NvfDiagFloatErrorsOnly", { clear = true })
 
-          local function show_hover(opts)
-            local bufnr = vim.api.nvim_get_current_buf()
-            local line = vim.api.nvim_win_get_cursor(0)[1] - 1
-            local diags = line_diags(bufnr, line, opts.severity_min)
-            if #diags == 0 then return end
+          vim.api.nvim_create_autocmd("CursorHold", {
+            group = group,
+            callback = function()
+              local bufnr = vim.api.nvim_get_current_buf()
+              local line = vim.api.nvim_win_get_cursor(0)[1] - 1
 
-            vim.diagnostic.open_float({
-              scope = opts.scope,
-              border = opts.border,
-              focus = opts.focus,
-              focusable = opts.focusable,
-              close_events = opts.close_events,
-            })
-          end
+              local diags = vim.diagnostic.get(bufnr, {
+                lnum = line,
+                severity = { min = vim.diagnostic.severity.ERROR },
+              })
+              if #diags == 0 then return end
 
-          local function setup(user_opts)
-            local opts = vim.tbl_deep_extend("force", defaults, user_opts or {})
-            vim.opt.updatetime = opts.updatetime
-
-            augroup = vim.api.nvim_create_augroup("DiagHover", { clear = true })
-            vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-              group = augroup,
-              callback = function()
-                if opts.filetypes then
-                  local ft = vim.bo.filetype
-                  if not vim.tbl_contains(opts.filetypes, ft) then
-                    return
-                  end
-                end
-                show_hover(opts)
-              end,
-            })
-          end
-
-          setup({})
+              vim.diagnostic.open_float(nil, {
+                scope = "cursor",
+                border = "rounded",
+                focus = false,
+                focusable = false,
+                source = "if_many",
+                close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
+                severity = { min = vim.diagnostic.severity.ERROR },
+              })
+            end,
+          })
         '';
+
       };
 
       # Keymaps (IMPORTANT: use `desc`, not `options.desc`) 
