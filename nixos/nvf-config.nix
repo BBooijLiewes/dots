@@ -265,7 +265,10 @@ in
       # Utility (use *current* option paths)
       utility = {
         # Precognition lives here now
-        motion.precognition.enable = true; # 
+        motion.precognition = {
+            enable = true; # 
+            setupOpts.startVisible = false;
+        };
 
         # Aerial moved under outline.aerial-nvim
         outline.aerial-nvim.enable = true; # 
