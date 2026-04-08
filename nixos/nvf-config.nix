@@ -218,14 +218,22 @@ in
       };
 
       # Completion (nvf removed vim.autocomplete.enable/type; use per-plugin module)
-      autocomplete.nvim-cmp.enable = true; # 
+      autocomplete.nvim-cmp.enable = true;
 
       # Autopairs (nvf removed vim.autopairs.enable; use per-plugin module)
-      autopairs.nvim-autopairs.enable = true; # 
+      autopairs.nvim-autopairs.enable = true;
 
       # Telescope
       telescope = {
         enable = true;
+
+        setupOpts = {
+          defaults = {
+            # Keep Telescope defaults:
+            #  - <CR> opens in current window
+            #  - <C-t> opens in a new *tabpage*
+          };
+        };
 
         extensions = [
           {
@@ -236,14 +244,13 @@ in
                 fuzzy = true;
                 override_generic_sorter = true;
                 override_file_sorter = true;
-                case_mode = "smart_case"; # or "ignore_case"
+                case_mode = "smart_case";
               };
             };
           }
         ];
       };
 
-    
       diagnostics = {
         enable = true;
 
@@ -272,8 +279,8 @@ in
 
             current_line_blame_opts = {
               virt_text = true;
-              virt_text_pos = "right_align"; # right side of the window
-              delay = 400;                  # show after a short pause
+              virt_text_pos = "eol"; # right side of the window
+              delay = 0;                  # show after a short pause
               ignore_whitespace = true;
               virt_text_priority = 100;
               use_focus = true;
@@ -296,8 +303,11 @@ in
         enable = true;
 
         setupOpts.options = {
-          mode = "tabs";   # show tabpages, not buffers
-          sort_by = "tabs";
+          # IMPORTANT FIX:
+          # Show *buffers* across the top (what most people expect as "tabs")
+          mode = "buffers";
+          sort_by = "insert_after_current";
+          always_show_bufferline = true;
         };
       };
 
@@ -305,18 +315,18 @@ in
       utility = {
         # Precognition lives here now
         motion.precognition = {
-            enable = true; # 
-            setupOpts.startVisible = false;
+          enable = true;
+          setupOpts.startVisible = false;
         };
 
         # Aerial moved under outline.aerial-nvim
-        outline.aerial-nvim.enable = true; # 
+        outline.aerial-nvim.enable = true;
 
         # Surround module still exists
-        surround.enable = true; # 
+        surround.enable = true;
 
         # Multiple cursors (nvf-native module; optional but nice)
-        multicursors.enable = true; # 
+        multicursors.enable = true;
       };
 
       # UI enhancements
@@ -402,7 +412,6 @@ in
             servers = [ "yaml-language-server" ];
           };
         };
-
 
         bash = {
           enable = true;
@@ -553,10 +562,9 @@ in
             end,
           })
         '';
-
       };
 
-      # Keymaps (IMPORTANT: use `desc`, not `options.desc`) 
+      # Keymaps (IMPORTANT: use `desc`, not `options.desc`)
       keymaps = [
         # Telescope (preserved)
         { key = "<C-p>"; mode = "n"; action = "<cmd>Telescope find_files<CR>"; desc = "Find files"; }
@@ -574,11 +582,10 @@ in
         { key = "<leader>fh"; mode = "n"; action = "<cmd>Telescope help_tags<CR>"; desc = "Help tags"; }
         { key = "<leader>fr"; mode = "n"; action = "<cmd>Telescope oldfiles<CR>"; desc = "Recent files"; }
 
-        # buffer traversal
-        { key = "<A-,>"; mode = "n"; action = "<cmd>tabprevious<CR>"; desc = "Previous tab"; }
-        { key = "<A-.>"; mode = "n"; action = "<cmd>tabnext<CR>";     desc = "Next tab"; }
-        { key = "<A-c>"; mode = "n"; action = "<cmd>tabclose<CR>";    desc = "Close tab"; }
-
+        # "Tabs" across the top are now BUFFERS -> navigate buffers
+        { key = "<A-,>"; mode = "n"; action = "<cmd>bprevious<CR>"; desc = "Previous buffer"; }
+        { key = "<A-.>"; mode = "n"; action = "<cmd>bnext<CR>";     desc = "Next buffer"; }
+        { key = "<A-c>"; mode = "n"; action = "<cmd>bprevious | bdelete #<CR>"; desc = "Close buffer"; }
 
         # Git
         { key = "<leader>gg"; mode = "n"; action = "<cmd>Neogit<CR>"; desc = "Open Neogit"; }
