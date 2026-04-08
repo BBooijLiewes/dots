@@ -69,6 +69,8 @@
     libqalculate
     grim
     slurp
+    vlc
+    claude-code
   ];
 
   programs.bat.enable = true;
