@@ -126,6 +126,7 @@
     NIXOS_OZONE_WL = "1";   # Wayland for Chromium/Electron
     EDITOR         = "nvim";
     TERMINAL       = "kitty";
+    MOZ_ENABLE_WAYLAND = "1";
   };
 
   environment.variables = {
@@ -324,6 +325,7 @@ environment.systemPackages = with pkgs; [
 
     # GUI apps
     chromium
+    firefox
     zulip
     spotify
     ulauncher
