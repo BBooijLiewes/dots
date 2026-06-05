@@ -273,7 +273,7 @@ environment.systemPackages = with pkgs; [
     swayidle
 
     # Node & tooling
-    nodejs_20
+    nodejs_24
     pnpm
     yarn
     yq
