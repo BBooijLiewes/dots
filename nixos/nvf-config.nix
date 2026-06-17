@@ -34,36 +34,29 @@ let
   ];
 
   prettierPkg = firstNonNull [
-    (getByPath [ "nodePackages" "prettier" ])
     (getByPath [ "prettier" ])
   ];
 
   eslintPkg = firstNonNull [
-    (getByPath [ "nodePackages" "eslint" ])
     (getByPath [ "eslint" ])
   ];
 
   tsLsPkg = firstNonNull [
-    (getByPath [ "nodePackages" "typescript-language-server" ])
     (getByPath [ "typescript-language-server" ])
   ];
 
   yamlLsPkg = firstNonNull [
-    (getByPath [ "nodePackages" "yaml-language-server" ])
     (getByPath [ "yaml-language-server" ])
   ];
 
   bashLsPkg = firstNonNull [
-    (getByPath [ "nodePackages" "bash-language-server" ])
     (getByPath [ "bash-language-server" ])
   ];
 
   dockerfileLsPkg = firstNonNull [
     (getByPath [ "dockerfile-language-server" ])
-    (getByPath [ "nodePackages" "dockerfile-language-server" ])
     # older name (keeps working if you're on an older nixpkgs)
     (getByPath [ "dockerfile-language-server-nodejs" ])
-    (getByPath [ "nodePackages" "dockerfile-language-server-nodejs" ])
   ];
 
   djangoStubs = getByPath [ "python3Packages" "django-stubs" ];
@@ -384,12 +377,11 @@ in
           };
         };
 
-        ts = {
+        typescript = {        # was `ts`
           enable = true;
           lsp = {
             enable = true;
-            # tsserver was renamed upstream -> ts_ls
-            servers = [ "ts_ls" ];
+            servers = [ "typescript-language-server" ];
           };
           format = {
             enable = true;
@@ -400,7 +392,6 @@ in
             types = [ "eslint_d" ];
           };
         };
-
         html.enable = true;
         css.enable = true;
 
@@ -408,7 +399,6 @@ in
           enable = true;
           lsp = {
             enable = true;
-            # nvf expects this enum, not "yamlls"
             servers = [ "yaml-language-server" ];
           };
         };
@@ -417,8 +407,7 @@ in
           enable = true;
           lsp = {
             enable = true;
-            # nvf expects "bash-ls", not "bashls"
-            servers = [ "bash-ls" ];
+            servers = [ "bash-language-server" ];
           };
         };
 
@@ -468,15 +457,6 @@ in
         disable_providers = ''
           vim.g.loaded_perl_provider = 0
           vim.g.loaded_ruby_provider = 0
-        '';
-
-        dockerfile_lsp = ''
-          pcall(function()
-            local lspconfig = require("lspconfig")
-            if lspconfig.dockerls then
-              lspconfig.dockerls.setup({})
-            end
-          end)
         '';
 
         python_settings = ''

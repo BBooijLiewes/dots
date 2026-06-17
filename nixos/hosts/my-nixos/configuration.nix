@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   imports = [
@@ -11,6 +11,7 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.permittedInsecurePackages = [ "electron-39.8.10" ];
 
   # Use the stateVersion from your previous install
   system.stateVersion = "25.11";
@@ -96,6 +97,7 @@
       "audio"
       "video"
       "docker"
+      "adbusers"
     ];
     shell = pkgs.zsh;
   };
@@ -124,6 +126,12 @@
     enable = true;
     withUWSM = true;
     xwayland.enable = true;
+  };
+
+  programs.uwsm.waylandCompositors.hyprland = {
+    prettyName = "Hyprland (UWSM)";
+    comment = "Hyprland managed by UWSM";
+    binPath = "/run/current-system/sw/bin/Hyprland";
   };
 
   environment.sessionVariables = {
@@ -171,10 +179,14 @@
   # Portals (files / screenshare)
   ########################################
 
+  programs.dconf.enable = true;
+
   xdg.portal = {
     enable = true;
     extraPortals = with pkgs; [ xdg-desktop-portal-gtk ];
+    config.common."org.freedesktop.impl.portal.Settings" = [ "gtk" ];
   };
+
 
   ########################################
   # Fonts (Nerd fonts)
@@ -299,7 +311,7 @@ environment.systemPackages = with pkgs; [
     isync
     msmtp
     gnupg
-    neofetch
+    fastfetch
 
     # VsCode
     vscode
@@ -461,4 +473,6 @@ programs.nix-ld = {
   # Optional bluetooth:
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
+
+
 }

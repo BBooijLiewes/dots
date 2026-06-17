@@ -13,6 +13,7 @@
 
   gtk = {
     enable = true;
+    gtk4.theme = config.gtk.theme;   # add this
     theme = {
       name = "Adwaita-dark";
       package = pkgs.gnome-themes-extra;
@@ -28,6 +29,10 @@
     platformTheme.name = "gtk";
   };
 
+  dconf.settings = {
+    "org/gnome/desktop/interface".color-scheme = "prefer-dark";
+  };
+
   ########################################
   # Wallpaper from dots repo
   ########################################
@@ -35,11 +40,6 @@
   xdg.configFile."hypr/wallpapers/background.png".source =
     "${dots}/.config/sway/background.png";
 
-  ########################################
-  # Neovim config from dots repo
-  ########################################
-
-  #xdg.configFile."nvim".source = "${dots}/.config/nvim";
 
   ########################################
   # Optional: expose your dots repo at ~/.dotfiles
@@ -91,12 +91,30 @@
 
   programs.neovim = {
     enable = true;
+    withRuby = true;
+    withPython3 = true;
     extraPackages = with pkgs; [
-      #silicon
       wl-clipboard
     ];
   };
 
+  ########################################
+  # wallpaper
+  ########################################
+
+  systemd.user.services.swww = {
+    Unit = {
+      Description = "swww/awww wallpaper daemon";
+      PartOf = [ "graphical-session.target" ];
+      After = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = "${pkgs.awww}/bin/awww-daemon";
+      ExecStartPost = "${pkgs.awww}/bin/awww img %h/.config/hypr/wallpapers/background.png";
+      Restart = "on-failure";
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
   ########################################
   # Hyprland config (caps->esc, blur, etc.)
   ########################################
@@ -162,7 +180,6 @@
     }
 
     dwindle {
-      pseudotile     = true
       preserve_split = true
     }
 
@@ -193,7 +210,6 @@
     ###############################
 
     # Wallpaper
-    exec-once = swww init && swww img ~/.config/hypr/wallpapers/background.png
 
     # Bar & notifications
     exec-once = waybar
@@ -278,10 +294,36 @@
     ###############################
 
     # Floating utilities
-    windowrulev2 = float, class:^(pavucontrol)$
-    windowrulev2 = float, class:^(ulauncher)$
-    windowrulev2 = float, class:^(Thunar)$
-    windowrulev2 = size 1200 700, class:^(Thunar)$
+    windowrule {
+    name = pavucontrol-float
+
+    match {
+        class = ^(pavucontrol)$
+    }
+
+    float = true
+    }
+
+    windowrule {
+        name = ulauncher-float
+
+        match {
+            class = ^(ulauncher)$
+        }
+
+        float = true
+    }
+
+    windowrule {
+        name = thunar-float
+
+        match {
+            class = ^(Thunar)$
+        }
+
+        float = true
+        size = 1200 700
+    }
 
 
   '';
@@ -593,7 +635,7 @@
 
     enableDefaultConfig = false;
 
-    matchBlocks."*" = {
+    settings."*" = {
       addKeysToAgent = "3h";
     };
 
