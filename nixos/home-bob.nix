@@ -71,6 +71,7 @@
     slurp
     vlc
     claude-code
+    opencode
   ];
 
   programs.bat.enable = true;
