@@ -376,6 +376,17 @@ in
             debugger = "debugpy";
           };
         };
+        dart = {
+          enable = true;
+          treesitter.enable = true;
+          lsp.enable = true;          # dartls (the analysis server)
+          dap.enable = true;          # debugging via flutter-tools
+          flutter-tools = {
+            enable = true;
+            flutterPackage = pkgs.flutter;   # bundles the Dart SDK the LSP needs
+            color.enable = true;             # inline color swatches for Color(...) literals
+          };
+        };
 
         typescript = {        # was `ts`
           enable = true;
