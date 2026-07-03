@@ -456,6 +456,11 @@ programs.nix-ld = {
 
     # Misc
     expat
+
+    # opencode
+    stdenv.cc.cc.lib   # provides libstdc++.so.6
+    zlib
+    openssl
   ];
 };
 

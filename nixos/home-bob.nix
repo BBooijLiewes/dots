@@ -70,9 +70,19 @@
     grim
     slurp
     vlc
-    claude-code
-    opencode
+    nodejs_24
+    (symlinkJoin {
+    name = "opencode";
+    paths = [ opencode ];
+    nativeBuildInputs = [ makeWrapper ];
+    postBuild = ''
+      wrapProgram $out/bin/opencode \
+        --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ stdenv.cc.cc.lib ]}
+    '';
+      })
   ];
+  
+  home.sessionVariables.OPENCODE_DISABLE_LSP_DOWNLOAD = "true";
 
   programs.bat.enable = true;
   programs.btop.enable = true;
