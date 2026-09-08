@@ -247,7 +247,7 @@ in
       # Statusline
       statusline.lualine = {
         enable = true;
-        theme = "tokyonight";
+        setupOpts.options.theme = "tokyonight";
       };
 
       # Tabline

@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, inputs, ... }:
 
 {
   imports = [
@@ -10,7 +10,17 @@
   ########################################
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+  # Make `nix run nixpkgs#foo`, `nix shell nixpkgs#foo` and legacy
+  # <nixpkgs> use the same pinned nixpkgs as the system (not unstable).
+  nix.registry.nixpkgs.flake = inputs.nixpkgs;
+  nix.nixPath = [ "nixpkgs=flake:nixpkgs" ];
+
   nixpkgs.config.allowUnfree = true;
+
+  # Version-pinned: re-check after nixpkgs bumps with
+  #   nix eval .#nixosConfigurations.my-nixos.pkgs.electron.version
+  # and update or remove this entry accordingly.
   nixpkgs.config.permittedInsecurePackages = [ "electron-39.8.10" ];
 
   # Use the stateVersion from your previous install
@@ -25,8 +35,14 @@
   boot.loader.systemd-boot.configurationLimit = 10;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  boot.initrd.luks.devices."luks-4bdf8f69-d4c1-4ab7-b3ff-d1c214ee354a".device =
-    "/dev/disk/by-uuid/4bdf8f69-d4c1-4ab7-b3ff-d1c214ee354a";
+  # Swap LUKS volume (root LUKS volume is defined in hardware-configuration.nix)
+  boot.initrd.luks.devices."luks-4bdf8f69-d4c1-4ab7-b3ff-d1c214ee354a" = {
+    device = "/dev/disk/by-uuid/4bdf8f69-d4c1-4ab7-b3ff-d1c214ee354a";
+    allowDiscards = true;
+  };
+
+  # Let TRIM pass through the root LUKS volume (needed for fstrim below).
+  boot.initrd.luks.devices."luks-e236e8f0-d51a-4465-944e-74664099bdd0".allowDiscards = true;
 
   ########################################
   # Basic system
@@ -63,6 +79,14 @@
   networking.firewall.enable = true;
 
   ########################################
+  # Maintenance / security
+  ########################################
+
+  services.fstrim.enable = true;   # weekly SSD TRIM
+  services.fwupd.enable = true;    # firmware updates (fwupdmgr update)
+  security.sudo.execWheelOnly = true;
+
+  ########################################
   # Builds cleanup
   ########################################
 
@@ -73,12 +97,12 @@
       options = "--delete-older-than 14d";
     };
 
+    # Weekly store deduplication (replaces per-build auto-optimise-store,
+    # which slows down every rebuild for the same result).
     optimise = {
       automatic = true;
       dates = [ "weekly" ];
     };
-
-    settings.auto-optimise-store = true;
   };
 
   ########################################
@@ -146,9 +170,7 @@
     GTK_THEME    = "Adwaita:dark";
     CHROMIUM_FLAGS = "--force-dark-mode --enable-features=WebUIDarkMode";
     GTK_APPLICATION_PREFER_DARK_THEME = "1";
-
   };
-
 
   ########################################
   # Login screen: greetd + Regreet
@@ -187,7 +209,6 @@
     config.common."org.freedesktop.impl.portal.Settings" = [ "gtk" ];
   };
 
-
   ########################################
   # Fonts (Nerd fonts)
   ########################################
@@ -208,6 +229,7 @@
 
   services.tailscale.enable = true;
   networking.firewall.checkReversePath = "loose";
+  networking.firewall.trustedInterfaces = [ "tailscale0" ];
 
   ########################################
   # Printing (optional)
@@ -239,7 +261,8 @@
   };
 
   ########################################
-  # DEV: Neovim as default vim/vi
+  # Neovim for root / rescue shells.
+  # Bob's editor is the nvf build from home-manager, which wins on PATH.
   ########################################
 
   programs.neovim = {
@@ -253,14 +276,12 @@
   # Packages (CLI, dev, GUI)
   ########################################
 
-environment.systemPackages = with pkgs; [
+  environment.systemPackages = with pkgs; [
     # Core CLI / dev
     git
     ripgrep
     fd
     fzf
-    bat
-    eza
     tmux
     htop
     tree
@@ -304,9 +325,8 @@ environment.systemPackages = with pkgs; [
     # Docker CLI bits
     docker-compose
 
-    # Terminal / editor / mail
+    # Terminal / mail
     kitty
-    neovim
     neomutt
     isync
     msmtp
@@ -334,7 +354,7 @@ environment.systemPackages = with pkgs; [
     playerctl
     pamixer
     pavucontrol
-    swww
+    awww            # wallpaper daemon (formerly swww); used by the HM user service
     wdisplays
     kanshi
     silicon
@@ -352,9 +372,8 @@ environment.systemPackages = with pkgs; [
     tailscale
     networkmanagerapplet
 
-    # Unzip files
+    # Archives
     file-roller
-    unzip
     p7zip
     unrar
   ];
@@ -391,78 +410,79 @@ environment.systemPackages = with pkgs; [
   # Development /bin/bash and /bin/sh
   ########################################
 
-  # Provide /bin/bash and /bin/sh for legacy scripts
+  # /bin/sh is managed by NixOS; point it at bash the supported way.
+  environment.binsh = "${pkgs.bashInteractive}/bin/bash";
+
+  # Provide /bin/bash and /bin/zsh for legacy scripts / shebangs
   system.activationScripts.binCompat.text = ''
     mkdir -p /bin
     ln -sf ${pkgs.bashInteractive}/bin/bash /bin/bash
-    ln -sf ${pkgs.bashInteractive}/bin/bash /bin/sh
     ln -sf ${pkgs.zsh}/bin/zsh /bin/zsh
-
   '';
 
-########################################
-# nix-ld
-########################################
-programs.nix-ld = {
-  enable = true;
+  ########################################
+  # nix-ld
+  ########################################
+  programs.nix-ld = {
+    enable = true;
 
-  libraries = with pkgs; [
-    # Base / already needed
-    glib
-    nspr
-    nss
-    dbus
-    atk
-    cups
-    cairo
-    pango
-    gtk3
-    gdk-pixbuf
+    libraries = with pkgs; [
+      # Base / already needed
+      glib
+      nspr
+      nss
+      dbus
+      atk
+      cups
+      cairo
+      pango
+      gtk3
+      gdk-pixbuf
 
-    # Graphics (GBM/GL/DRM)
-    libgbm
-    mesa
-    libdrm
-    libglvnd
+      # Graphics (GBM/GL/DRM)
+      libgbm
+      mesa
+      libdrm
+      libglvnd
 
-    # Audio / notifications / secrets
-    alsa-lib
-    libnotify
-    libsecret
-    pulseaudio
+      # Audio / notifications / secrets
+      alsa-lib
+      libnotify
+      libsecret
+      pulseaudio
 
-    # Wayland / input
-    wayland
-    libxkbcommon
+      # Wayland / input
+      wayland
+      libxkbcommon
 
-    # XWayland / X11 (common Electron deps)
-    xorg.libX11
-    xorg.libXScrnSaver
-    xorg.libXtst
-    xorg.libXcomposite
-    xorg.libXdamage
-    xorg.libXext
-    xorg.libXfixes
-    xorg.libXrandr
-    xorg.libxcb
-    xorg.libXi
-    xorg.libXcursor
-    xorg.libXrender
-    xorg.libXinerama
+      # XWayland / X11 (common Electron deps)
+      libx11
+      libxscrnsaver
+      libxtst
+      libxcomposite
+      libxdamage
+      libxext
+      libxfixes
+      libxrandr
+      libxcb
+      libxi
+      libxcursor
+      libxrender
+      libxinerama
 
-    # Accessibility
-    at-spi2-core
-    at-spi2-atk
+      # Accessibility
+      at-spi2-core
+      at-spi2-atk
 
-    # Misc
-    expat
+      # Misc
+      expat
 
-    # opencode
-    stdenv.cc.cc.lib   # provides libstdc++.so.6
-    zlib
-    openssl
-  ];
-};
+      # opencode
+      stdenv.cc.cc.lib   # provides libstdc++.so.6
+      zlib
+      openssl
+    ];
+  };
 
   ########################################
   # Misc
@@ -470,14 +490,8 @@ programs.nix-ld = {
 
   services.gnome.gnome-keyring.enable = true;
 
-  programs.ssh = {
-    agentTimeout = "2h";
-  };
-
-
   # Optional bluetooth:
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
-
-
 }
+

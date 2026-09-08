@@ -1,6 +1,13 @@
 {
   description = "Bob's NixOS with Hyprland + Home Manager + dots wallpaper";
 
+  # Routine security updates (stable branches only):
+  #   nix flake update nixpkgs home-manager
+  #   sudo nixos-rebuild switch --flake .#my-nixos
+  #
+  # nvf tracks its main branch and breaks option names between releases;
+  # bump it deliberately with:  nix flake update nvf
+
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
 
@@ -38,6 +45,10 @@
         ({ ... }: {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
+
+          # Don't abort activation when a managed dotfile already exists;
+          # rename the old one instead.
+          home-manager.backupFileExtension = "hm-backup";
 
           home-manager.extraSpecialArgs = {
             inherit dots nvf;

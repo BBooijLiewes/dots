@@ -1,4 +1,4 @@
-{ config, pkgs, dots, nvf, ... }:
+{ config, pkgs, lib, dots, nvf, ... }:
 
 {
 
@@ -13,7 +13,7 @@
 
   gtk = {
     enable = true;
-    gtk4.theme = config.gtk.theme;   # add this
+    gtk4.theme = config.gtk.theme;
     theme = {
       name = "Adwaita-dark";
       package = pkgs.gnome-themes-extra;
@@ -71,17 +71,18 @@
     slurp
     vlc
     nodejs_24
+    wl-clipboard   # clipboard provider for the nvf neovim build
     (symlinkJoin {
-    name = "opencode";
-    paths = [ opencode ];
-    nativeBuildInputs = [ makeWrapper ];
-    postBuild = ''
-      wrapProgram $out/bin/opencode \
-        --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ stdenv.cc.cc.lib ]}
-    '';
-      })
+      name = "opencode";
+      paths = [ opencode ];
+      nativeBuildInputs = [ makeWrapper ];
+      postBuild = ''
+        wrapProgram $out/bin/opencode \
+          --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ stdenv.cc.cc.lib ]}
+      '';
+    })
   ];
-  
+
   home.sessionVariables.OPENCODE_DISABLE_LSP_DOWNLOAD = "true";
 
   programs.bat.enable = true;
@@ -96,18 +97,14 @@
     ];
   };
 
-  ########################################
-  # Neovim package and order
-  ########################################
-
-  programs.neovim = {
+  # fzf with proper zsh keybindings/completion (replaces the oh-my-zsh fzf plugin)
+  programs.fzf = {
     enable = true;
-    withRuby = true;
-    withPython3 = true;
-    extraPackages = with pkgs; [
-      wl-clipboard
-    ];
+    enableZshIntegration = true;
   };
+
+  # Neovim itself comes from nvf (programs.nvf in ./nvf-config.nix);
+  # the old programs.neovim block here was a second, unused install.
 
   ########################################
   # wallpaper
@@ -126,6 +123,7 @@
     };
     Install.WantedBy = [ "graphical-session.target" ];
   };
+
   ########################################
   # Hyprland config (caps->esc, blur, etc.)
   ########################################
@@ -143,11 +141,14 @@
     $terminal = kitty
     $menu     = ulauncher-toggle
 
+    # Lock command, defined once and reused below
+    $lock = swaylock -f -i ~/.config/hypr/wallpapers/background.png --indicator-thickness 60 --indicator-radius 110 --inside-color 2D3046 --line-color 2D3046 --ring-color FFD200 -r -n --key-hl-color FFFFFF --separator-color FFFFFF
+
     ###############################
     # General look & feel
     ###############################
 
-   general {
+    general {
       gaps_in  = 6
       gaps_out = 12
       border_size = 2
@@ -155,8 +156,8 @@
       layout = dwindle
       resize_on_border = true
 
-      col.active_border   = rgba(45475aff)  
-      col.inactive_border = rgba(1e1e2eff) 
+      col.active_border   = rgba(45475aff)
+      col.inactive_border = rgba(1e1e2eff)
     }
 
     decoration {
@@ -170,8 +171,8 @@
       }
 
       shadow {
-	enabled = true
-	range = 20
+        enabled = true
+        range = 20
         render_power = 3
       }
     }
@@ -220,7 +221,7 @@
     # Autostart
     ###############################
 
-    # Wallpaper
+    # Wallpaper: handled by the swww user service (graphical-session.target)
 
     # Bar & notifications
     exec-once = waybar
@@ -231,8 +232,8 @@
     exec-once = nm-applet
     exec-once = kanshi
 
-    # Auto-lock after 5 minutes and before sleep
-    exec-once = swayidle -w timeout 180 "swaylock -f -i ~/.config/hypr/wallpapers/background.png --indicator-thickness 60 --indicator-radius 110 --inside-color 2D3046 --line-color 2D3046 --ring-color FFD200 -r -n --key-hl-color FFFFFF --separator-color FFFFFF" before-sleep "swaylock -f -i ~/.config/hypr/wallpapers/background.png --indicator-thickness 60 --indicator-radius 110 --inside-color 2D3046 --line-color 2D3046 --ring-color FFD200 -r -n --key-hl-color FFFFFF --separator-color FFFFFF"
+    # Auto-lock after 3 minutes and before sleep
+    exec-once = swayidle -w timeout 180 "$lock" before-sleep "$lock"
 
     # Apps on dedicated workspaces
     exec-once = [workspace 1 silent] zulip
@@ -253,7 +254,7 @@
     bind = $mod SHIFT, Q, killactive
 
     # Lock screen (manual)
-    bind = $mod SHIFT, X, exec, swaylock -f -i ~/.config/hypr/wallpapers/background.png --indicator-thickness 60 --indicator-radius 110 --inside-color 2D3046 --line-color 2D3046 --ring-color FFD200 -r -n --key-hl-color FFFFFF --separator-color FFFFFF
+    bind = $mod SHIFT, X, exec, $lock
 
     bind = $mod, F,       fullscreen, 0
     bind = $mod SHIFT, F, fullscreen, 1
@@ -306,37 +307,35 @@
 
     # Floating utilities
     windowrule {
-    name = pavucontrol-float
+      name = pavucontrol-float
 
-    match {
+      match {
         class = ^(pavucontrol)$
-    }
+      }
 
-    float = true
-    }
-
-    windowrule {
-        name = ulauncher-float
-
-        match {
-            class = ^(ulauncher)$
-        }
-
-        float = true
+      float = true
     }
 
     windowrule {
-        name = thunar-float
+      name = ulauncher-float
 
-        match {
-            class = ^(Thunar)$
-        }
+      match {
+        class = ^(ulauncher)$
+      }
 
-        float = true
-        size = 1200 700
+      float = true
     }
 
+    windowrule {
+      name = thunar-float
 
+      match {
+        class = ^(Thunar)$
+      }
+
+      float = true
+      size = 1200 700
+    }
   '';
 
   ########################################
@@ -372,7 +371,7 @@
       ],
 
       "custom/menu": {
-        "format": "",
+        "format": "",
         "tooltip": "Launcher",
         "on-click": "ulauncher-toggle"
       },
@@ -395,18 +394,18 @@
       },
 
       "cpu": {
-        "format": " {usage:2}%",
+        "format": " {usage:2}%",
         "tooltip": true
       },
 
       "memory": {
-        "format": " {percentage:2}%",
+        "format": " {percentage:2}%",
         "tooltip": true
       },
 
       "temperature": {
         "critical-threshold": 80,
-        "format": " {temperatureC}°C",
+        "format": " {temperatureC}°C",
         "tooltip": true
       },
 
@@ -415,11 +414,11 @@
         "format": "{icon} {volume:2}%",
         "format-muted": "󰝟 mute",
         "on-click": "pavucontrol",
-        "format-icons": ["", "", ""]
+        "format-icons": ["", "", ""]
       },
 
       "network": {
-        "format-wifi": " {essid} {signalStrength}%",
+        "format-wifi": " {essid} {signalStrength}%",
         "format-ethernet": "󰈀 {ipaddr}",
         "format-disconnected": "󰤫",
         "tooltip": true
@@ -602,32 +601,32 @@
       };
 
       git_branch = {
-        symbol = " ";
+        symbol = " ";
         style = "bold purple";
       };
 
       git_status = {
-        conflicted = " ";
+        conflicted = " ";
         ahead      = "⇡";
         behind     = "⇣";
         diverged   = "⇕";
-        modified   = " ";
+        modified   = " ";
         staged     = "+";
         untracked  = "?";
       };
 
       nodejs = {
-        symbol   = " ";
+        symbol   = " ";
         disabled = false;
       };
 
       python = {
-        symbol   = " ";
+        symbol   = " ";
         disabled = false;
       };
 
       docker_context = {
-        symbol   = " ";
+        symbol   = " ";
         disabled = false;
       };
 
@@ -656,12 +655,12 @@
   };
 
   programs.zoxide = {
-      enable = true;
-      enableZshIntegration = true;
+    enable = true;
+    enableZshIntegration = true;
 
-      # Replace `cd` with zoxide's wrapped version
-      # (interactive variant becomes `cdi`)
-      options = [ "--cmd cd" ];
+    # Replace `cd` with zoxide's wrapped version
+    # (interactive variant becomes `cdi`)
+    options = [ "--cmd" "cd" ];
   };
 
   programs.zsh = {
@@ -688,8 +687,8 @@
       theme = "robbyrussell"; # doesn't really matter, Starship overrides the prompt
       plugins = [
         "git"
-        "fzf"
         "sudo"
+        # "fzf" is handled by programs.fzf above
         # no "z" plugin, we use zoxide instead
       ];
     };
@@ -705,3 +704,4 @@
     '';
   };
 }
+
