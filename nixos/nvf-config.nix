@@ -1,6 +1,12 @@
 # nvf-config.nix
 # Optimized Neovim configuration for Django/React/Docker development
-# Updated to match current NVF option paths (keymaps.desc, nvim-cmp module, nvim-autopairs module, etc.)
+# Updated 2026-09 for nvf 26.07+/main (CalVer) and nixpkgs 26.05:
+#   - dap.debugger is now a list
+#   - autotagHtml moved to languages.html.treesitter
+#   - treesitter grammars come from language modules (nvim-treesitter rewrite)
+#   - new languages.tsx / languages.docker / languages.toml / languages.json modules
+#   - native modules for hardtime and ccc instead of extraPlugins
+#   - trouble.nvim v3 commands
 {
   config,
   pkgs,
@@ -53,12 +59,6 @@ let
     (getByPath [ "bash-language-server" ])
   ];
 
-  dockerfileLsPkg = firstNonNull [
-    (getByPath [ "dockerfile-language-server" ])
-    # older name (keeps working if you're on an older nixpkgs)
-    (getByPath [ "dockerfile-language-server-nodejs" ])
-  ];
-
   djangoStubs = getByPath [ "python3Packages" "django-stubs" ];
   drfStubs = getByPath [ "python3Packages" "djangorestframework-stubs" ];
   debugpyPkg = getByPath [ "python3Packages" "debugpy" ];
@@ -96,12 +96,6 @@ let
         '';
       })
 
-      (mkExtraPlugin "hardtime-nvim" (pluginPkg [ "hardtime-nvim" ]) {
-        setup = ''
-          require("hardtime").setup()
-        '';
-      })
-
       (mkExtraPlugin "nvim-navbuddy" (pluginPkg [ "nvim-navbuddy" ]) {
         setup = ''
           require("nvim-navbuddy").setup({ lsp = { auto_attach = true } })
@@ -117,11 +111,6 @@ let
       # Nice-to-have utilities (enable only if available)
       (mkExtraPlugin "diffview-nvim" (pluginPkg [ "diffview-nvim" ]) { })
       (mkExtraPlugin "undotree" (pluginPkg [ "undotree" ]) { })
-      (mkExtraPlugin "ccc-nvim" (pluginPkg [ "ccc-nvim" "ccc" ]) {
-        setup = ''
-          pcall(function() require("ccc").setup() end)
-        '';
-      })
       (mkExtraPlugin "trouble" (pluginPkg [ "trouble-nvim" "trouble" ]) {
         setup = ''
           pcall(function() require("trouble").setup({}) end)
@@ -159,61 +148,31 @@ in
         style = "night";
       };
 
-      # Treesitter: minimal set for Django/React/Docker workflow
+      # Treesitter
+      # Grammars are no longer listed by hand: every enabled language module
+      # (with languages.enableTreesitter = true) pulls in its own grammar via
+      # the new nvim-treesitter main-branch packaging in nixpkgs 26.05.
       treesitter = {
         enable = true;
         fold = false;
-        addDefaultGrammars = false;
-
-        grammars = [
-          # Python/Django
-          pkgs.vimPlugins.nvim-treesitter.builtGrammars.python
-
-          # JS/TS/React
-          pkgs.vimPlugins.nvim-treesitter.builtGrammars.javascript
-          pkgs.vimPlugins.nvim-treesitter.builtGrammars.typescript
-          pkgs.vimPlugins.nvim-treesitter.builtGrammars.tsx
-
-          # Web
-          pkgs.vimPlugins.nvim-treesitter.builtGrammars.html
-          pkgs.vimPlugins.nvim-treesitter.builtGrammars.css
-
-          # Config/Data
-          pkgs.vimPlugins.nvim-treesitter.builtGrammars.json
-          pkgs.vimPlugins.nvim-treesitter.builtGrammars.yaml
-          pkgs.vimPlugins.nvim-treesitter.builtGrammars.toml
-
-          # DevOps
-          pkgs.vimPlugins.nvim-treesitter.builtGrammars.dockerfile
-          pkgs.vimPlugins.nvim-treesitter.builtGrammars.bash
-
-          # Other
-          pkgs.vimPlugins.nvim-treesitter.builtGrammars.nix
-          pkgs.vimPlugins.nvim-treesitter.builtGrammars.markdown
-          pkgs.vimPlugins.nvim-treesitter.builtGrammars.markdown_inline
-          pkgs.vimPlugins.nvim-treesitter.builtGrammars.regex
-        ];
-
-        autotagHtml = true;
       };
 
       # searchcase
       searchCase = "smart";
 
-      # LSP (note: nvf moved enableLSP -> vim.lsp.enable)
+      # LSP
       lsp = {
         enable = true;
         formatOnSave = false;
 
-        # Works when you're using nvim-cmp/blink.cmp (we enable nvim-cmp below)
         lspkind.enable = true;
         lspSignature.enable = true;
       };
 
-      # Completion (nvf removed vim.autocomplete.enable/type; use per-plugin module)
+      # Completion
       autocomplete.nvim-cmp.enable = true;
 
-      # Autopairs (nvf removed vim.autopairs.enable; use per-plugin module)
+      # Autopairs
       autopairs.nvim-autopairs.enable = true;
 
       # Telescope
@@ -273,7 +232,7 @@ in
             current_line_blame_opts = {
               virt_text = true;
               virt_text_pos = "eol"; # right side of the window
-              delay = 0;                  # show after a short pause
+              delay = 0;
               ignore_whitespace = true;
               virt_text_priority = 100;
               use_focus = true;
@@ -296,7 +255,6 @@ in
         enable = true;
 
         setupOpts.options = {
-          # IMPORTANT FIX:
           # Show *buffers* across the top (what most people expect as "tabs")
           mode = "buffers";
           sort_by = "insert_after_current";
@@ -304,22 +262,24 @@ in
         };
       };
 
-      # Utility (use *current* option paths)
+      # Keybind training (native nvf module, was an extraPlugin before)
+      binds.hardtime-nvim.enable = true;
+
+      # Utility
       utility = {
-        # Precognition lives here now
         motion.precognition = {
           enable = true;
           setupOpts.startVisible = false;
         };
 
-        # Aerial moved under outline.aerial-nvim
         outline.aerial-nvim.enable = true;
 
-        # Surround module still exists
         surround.enable = true;
 
-        # Multiple cursors (nvf-native module; optional but nice)
         multicursors.enable = true;
+
+        # Color picker (native nvf module, was an extraPlugin before)
+        ccc.enable = true;
       };
 
       # UI enhancements
@@ -361,6 +321,7 @@ in
         enableTreesitter = true;
         enableFormat = true;
 
+        # ---- Python / Django ----
         python = {
           enable = true;
           lsp = {
@@ -373,22 +334,25 @@ in
           };
           dap = {
             enable = true;
-            debugger = "debugpy";
-          };
-        };
-        dart = {
-          enable = true;
-          treesitter.enable = true;
-          lsp.enable = true;          # dartls (the analysis server)
-          dap.enable = true;          # debugging via flutter-tools
-          flutter-tools = {
-            enable = true;
-            flutterPackage = pkgs.flutter;   # bundles the Dart SDK the LSP needs
-            color.enable = true;             # inline color swatches for Color(...) literals
+            debugger = [ "debugpy" ]; # now a list
           };
         };
 
-        typescript = {        # was `ts`
+        # ---- Dart / Flutter ----
+        dart = {
+          enable = true;
+          treesitter.enable = true;
+          lsp.enable = true;
+          dap.enable = true;
+          flutter-tools = {
+            enable = true;
+            flutterPackage = pkgs.flutter;
+            color.enable = true;
+          };
+        };
+
+        # ---- TypeScript / JavaScript ----
+        typescript = {
           enable = true;
           lsp = {
             enable = true;
@@ -403,9 +367,23 @@ in
             types = [ "eslint_d" ];
           };
         };
-        html.enable = true;
+
+        # ---- React (JSX/TSX) ----
+        # Split out of languages.typescript in nvf 26.07. Inherits sane
+        # defaults; mirror the typescript lsp/format settings here if you
+        # want to pin them explicitly.
+        tsx.enable = true;
+
+        # ---- Web ----
+        html = {
+          enable = true;
+          treesitter.autotagHtml = true; # moved here from vim.treesitter
+        };
         css.enable = true;
 
+        # ---- Config / data ----
+        json.enable = true;
+        toml.enable = true;
         yaml = {
           enable = true;
           lsp = {
@@ -413,6 +391,12 @@ in
             servers = [ "yaml-language-server" ];
           };
         };
+
+        # ---- DevOps ----
+        # New in 26.07: Dockerfile + docker-compose support, including
+        # docker-language-server. Replaces the manual dockerfile-language-server
+        # package that used to be in extraPackages.
+        docker.enable = true;
 
         bash = {
           enable = true;
@@ -422,6 +406,7 @@ in
           };
         };
 
+        # ---- Other ----
         nix = {
           enable = true;
           lsp = {
@@ -455,7 +440,6 @@ in
           tsLsPkg
           yamlLsPkg
           bashLsPkg
-          dockerfileLsPkg
 
           # CLI helpers
           dockerCompose
@@ -555,15 +539,15 @@ in
         '';
       };
 
-      # Keymaps (IMPORTANT: use `desc`, not `options.desc`)
+      # Keymaps
       keymaps = [
-        # Telescope (preserved)
+        # Telescope
         { key = "<C-p>"; mode = "n"; action = "<cmd>Telescope find_files<CR>"; desc = "Find files"; }
         { key = "<C-j>"; mode = "n"; action = "<cmd>Telescope live_grep<CR>"; desc = "Live grep"; }
         { key = "<C-f>"; mode = "n"; action = "<cmd>Telescope file_browser path=%:p:h<CR>"; desc = "File browser (current dir)"; }
         { key = "<C-b>"; mode = "n"; action = "<cmd>Telescope file_browser<CR>"; desc = "File browser"; }
 
-        # Precognition toggle (module-enabled)
+        # Precognition toggle
         { key = "<C-h>"; mode = "n"; action = "<cmd>lua require('precognition').toggle()<CR>"; desc = "Toggle precognition"; }
 
         # Leader telescope
@@ -573,7 +557,7 @@ in
         { key = "<leader>fh"; mode = "n"; action = "<cmd>Telescope help_tags<CR>"; desc = "Help tags"; }
         { key = "<leader>fr"; mode = "n"; action = "<cmd>Telescope oldfiles<CR>"; desc = "Recent files"; }
 
-        # "Tabs" across the top are now BUFFERS -> navigate buffers
+        # "Tabs" across the top are BUFFERS -> navigate buffers
         { key = "<A-,>"; mode = "n"; action = "<cmd>bprevious<CR>"; desc = "Previous buffer"; }
         { key = "<A-.>"; mode = "n"; action = "<cmd>bnext<CR>";     desc = "Next buffer"; }
         { key = "<A-c>"; mode = "n"; action = "<cmd>bprevious | bdelete #<CR>"; desc = "Close buffer"; }
@@ -586,7 +570,7 @@ in
 
         # Diffview (extra plugin, if available)
         { key = "<leader>dv"; mode = "n"; action = "<cmd>DiffviewOpen<CR>"; desc = "Open diffview"; }
-        { key = "<leader>dc"; mode = "n"; action = "<cmd>DiffviewClose<CR>"; desc = "Close diffview"; }
+        { key = "<leader>dx"; mode = "n"; action = "<cmd>DiffviewClose<CR>"; desc = "Close diffview"; }
         { key = "<leader>dh"; mode = "n"; action = "<cmd>DiffviewFileHistory<CR>"; desc = "File history"; }
 
         # Undotree (extra plugin, if available)
@@ -596,10 +580,10 @@ in
         { key = "<leader>o"; mode = "n"; action = "<cmd>AerialToggle<CR>"; desc = "Toggle code outline"; }
         { key = "<leader>n"; mode = "n"; action = "<cmd>Navbuddy<CR>"; desc = "LSP navigation"; }
 
-        # Trouble (extra plugin, if available)
-        { key = "<leader>xx"; mode = "n"; action = "<cmd>TroubleToggle<CR>"; desc = "Toggle Trouble"; }
-        { key = "<leader>xw"; mode = "n"; action = "<cmd>TroubleToggle workspace_diagnostics<CR>"; desc = "Workspace diagnostics"; }
-        { key = "<leader>xd"; mode = "n"; action = "<cmd>TroubleToggle document_diagnostics<CR>"; desc = "Document diagnostics"; }
+        # Trouble v3 (TroubleToggle no longer exists)
+        { key = "<leader>xx"; mode = "n"; action = "<cmd>Trouble diagnostics toggle<CR>"; desc = "Workspace diagnostics"; }
+        { key = "<leader>xw"; mode = "n"; action = "<cmd>Trouble diagnostics toggle<CR>"; desc = "Workspace diagnostics"; }
+        { key = "<leader>xd"; mode = "n"; action = "<cmd>Trouble diagnostics toggle filter.buf=0<CR>"; desc = "Document diagnostics"; }
 
         # Search/replace
         { key = "<leader>S"; mode = "n"; action = "<cmd>lua require('spectre').open()<CR>"; desc = "Open Spectre"; }
@@ -614,8 +598,8 @@ in
         { key = "<leader>ds"; mode = "n"; action = "<cmd>terminal python manage.py shell<CR>"; desc = "Django shell"; }
 
         # Docker helpers
-        { key = "<leader>Du"; mode = "n"; action = "<cmd>terminal docker-compose up<CR>"; desc = "Docker compose up"; }
-        { key = "<leader>Dd"; mode = "n"; action = "<cmd>terminal docker-compose down<CR>"; desc = "Docker compose down"; }
+        { key = "<leader>Du"; mode = "n"; action = "<cmd>terminal docker compose up<CR>"; desc = "Docker compose up"; }
+        { key = "<leader>Dd"; mode = "n"; action = "<cmd>terminal docker compose down<CR>"; desc = "Docker compose down"; }
       ];
     };
   };
