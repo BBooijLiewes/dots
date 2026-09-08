@@ -125,6 +125,28 @@
   };
 
   ########################################
+  # Session services (started by UWSM via graphical-session.target)
+  ########################################
+
+  # 2. Password dialog for apps that need elevation
+  services.hyprpolkitagent.enable = true;
+
+  # 8. Clipboard history (wl-paste --watch cliphist store)
+  services.cliphist.enable = true;
+
+  # 18. Night light: warm after 21:00, normal at 07:30
+  services.hyprsunset = {
+    enable = true;
+    settings = {
+      max-gamma = 150;
+      profile = [
+        { time = "07:30"; identity = true; }
+        { time = "21:00"; temperature = 4500; gamma = 0.9; }
+      ];
+    };
+  };
+
+  ########################################
   # Hyprland config (caps->esc, blur, etc.)
   ########################################
 
@@ -294,6 +316,9 @@
     bind = $mod SHIFT, 7, movetoworkspace, 7
     bind = $mod SHIFT, 8, movetoworkspace, 8
     bind = $mod SHIFT, 9, movetoworkspace, 9
+
+    # Clipboard history picker
+    bind = $mod, V, exec, cliphist list | wofi --dmenu | cliphist decode | wl-copy
 
     ###############################
     # Screenshots
@@ -661,6 +686,18 @@
     # Replace `cd` with zoxide's wrapped version
     # (interactive variant becomes `cdi`)
     options = [ "--cmd" "cd" ];
+  };
+
+  programs.atuin = {
+    enable = true;
+    enableZshIntegration = true;
+    flags = [ "--disable-up-arrow" ];   # keep ↑ as plain zsh history; Ctrl-R opens atuin
+    settings = {
+      style = "compact";
+      inline_height = 20;
+      filter_mode_shell_up_key_binding = "directory";
+      enter_accept = false;   # Enter puts the command on the line, doesn't run it
+    };
   };
 
   programs.zsh = {

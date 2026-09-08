@@ -152,12 +152,6 @@
     xwayland.enable = true;
   };
 
-  programs.uwsm.waylandCompositors.hyprland = {
-    prettyName = "Hyprland (UWSM)";
-    comment = "Hyprland managed by UWSM";
-    binPath = "/run/current-system/sw/bin/Hyprland";
-  };
-
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";   # Wayland for Chromium/Electron
     EDITOR         = "nvim";
@@ -236,6 +230,11 @@
   ########################################
 
   services.printing.enable = true;
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;      # resolve printer.local names
+    openFirewall = true;  # UDP 5353 for mDNS
+  };
 
   ########################################
   # Thunar file manager (module-based)
@@ -489,6 +488,7 @@
   ########################################
 
   services.gnome.gnome-keyring.enable = true;
+  security.pam.services.greetd.enableGnomeKeyring = true;
 
   # Optional bluetooth:
   hardware.bluetooth.enable = true;
