@@ -7,9 +7,13 @@
   #
   # nvf tracks its main branch and breaks option names between releases;
   # bump it deliberately with:  nix flake update nvf
+  #
+  # nixpkgs-unstable is only used for opencode; bump it with:
+  #   nix flake update nixpkgs-unstable
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
@@ -28,9 +32,15 @@
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, home-manager, dots, nvf, ... }:
+  outputs = inputs@{ self, nixpkgs, nixpkgs-unstable, home-manager, dots, nvf, ... }:
   let
     system = "x86_64-linux";
+
+    # Unstable package set, used only for selected packages (opencode)
+    pkgs-unstable = import nixpkgs-unstable {
+      inherit system;
+      config.allowUnfree = true;
+    };
   in {
     nixosConfigurations.my-nixos = nixpkgs.lib.nixosSystem {
       inherit system;
@@ -51,7 +61,7 @@
           home-manager.backupFileExtension = "hm-backup";
 
           home-manager.extraSpecialArgs = {
-            inherit dots nvf;
+            inherit dots nvf pkgs-unstable;
           };
 
           home-manager.users.bob = import ./home-bob.nix;
@@ -60,4 +70,3 @@
     };
   };
 }
-

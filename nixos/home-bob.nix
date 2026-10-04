@@ -1,4 +1,4 @@
-{ config, pkgs, lib, dots, nvf, ... }:
+{ config, pkgs, lib, dots, nvf, pkgs-unstable, ... }:
 
 {
 
@@ -72,15 +72,26 @@
     vlc
     nodejs_24
     wl-clipboard   # clipboard provider for the nvf neovim build
+    # opencode comes from nixpkgs-unstable so it stays current
     (symlinkJoin {
       name = "opencode";
-      paths = [ opencode ];
+      paths = [ pkgs-unstable.opencode ];
       nativeBuildInputs = [ makeWrapper ];
       postBuild = ''
         wrapProgram $out/bin/opencode \
           --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ stdenv.cc.cc.lib ]}
       '';
     })
+    # LSP stuffz
+    basedpyright
+    ruff
+    typescript
+    typescript-language-server
+    bash-language-server
+    vscode-langservers-extracted
+    yaml-language-server
+    docker-language-server
+    nil
   ];
 
   home.sessionVariables.OPENCODE_DISABLE_LSP_DOWNLOAD = "true";
@@ -741,4 +752,3 @@
     '';
   };
 }
-
