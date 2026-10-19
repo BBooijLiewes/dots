@@ -172,8 +172,36 @@
 
   security.polkit.enable = true;
 
-  services.greetd.enable = true;
   programs.regreet.enable = true;
+
+  # Run ReGreet inside Hyprland instead of cage
+  services.greetd = {
+    enable = true;
+    settings.default_session.command =
+      let
+        hypr = config.programs.hyprland.package;
+        greeterConf = pkgs.writeText "regreet-hyprland.conf" ''
+          exec-once = ${lib.getExe config.programs.regreet.package}; ${hypr}/bin/hyprctl dispatch exit
+
+          general {
+            gaps_in = 0
+            gaps_out = 0
+            border_size = 0
+          }
+
+          misc {
+            disable_hyprland_logo = true
+            disable_splash_rendering = true
+          }
+
+          ecosystem {
+            no_update_news = true
+            no_donation_nag = true
+          }
+        '';
+      in
+      "${pkgs.dbus}/bin/dbus-run-session ${hypr}/bin/start-hyprland -- -c ${greeterConf}";
+  };
 
   ########################################
   # Audio: PipeWire
