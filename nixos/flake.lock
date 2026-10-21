@@ -56,8 +56,8 @@
     "mail-private": {
       "flake": false,
       "locked": {
-        "lastModified": 1792587739,
-        "narHash": "sha256-css48155EtpeIJWu6/ecDqA/HC2g0gtr+sp2sI/iKkA=",
+        "lastModified": 1792589227,
+        "narHash": "sha256-w0MydO24qT6NHPxAmVR3IifYEb+hSIhr4NFKloVxHTU=",
         "path": "/home/bob/.config/nix-private",
         "type": "path"
       },

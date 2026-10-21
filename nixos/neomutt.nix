@@ -3,6 +3,14 @@
 # mail-account.nix in a private repo; the password is in GNOME Keyring.
 { pkgs, ... }:
 
+let
+  # mutt-wizard's colours and message-list layout, taken from the packaged
+  # config so they match upstream. Its keybindings/macros are left out.
+  mwLook = pkgs.runCommand "mutt-wizard-look.muttrc" { } ''
+    grep -E '^[[:space:]]*(color|mono)[[:space:]]|^set (index_format|date_format)[[:space:]=]' \
+      ${pkgs.mutt-wizard}/share/mutt-wizard/mutt-wizard.muttrc > $out
+  '';
+in
 {
   programs.mbsync.enable = true; # IMAP <-> ~/Maildir
   programs.msmtp.enable = true;  # SMTP sending
@@ -18,6 +26,8 @@
 
     # neomutt's bundled vim-keys.rc: gg/G, dd, dt/dT, Ctrl-d/u, za/zA, gt/gT, N
     vimKeys = true;
+
+    sort = "reverse-date";          # ← new line
 
     sidebar = {
       enable = true;
@@ -69,6 +79,10 @@
     ];
 
     extraConfig = ''
+      source ${mwLook}
+      
+      set date_format = "%d-%m-%y %H:%M"
+
       # Prefer plain text, render HTML-only mail inline
       alternative_order text/plain text/enriched text/html
       auto_view text/html
