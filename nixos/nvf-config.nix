@@ -499,6 +499,7 @@ in
             callback = function()
               vim.opt_local.textwidth = 72
               vim.opt_local.colorcolumn = "72"
+              vim.opt_local.formatoptions:append("w")  -- format=flowed: soft line breaks
             end,
           })
         '';
