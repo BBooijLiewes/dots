@@ -30,9 +30,15 @@
       url = "github:notashelf/nvf";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    mail-private = {
+      url = "path:/home/bob/.config/nix-private";
+      flake = false;
+    };
   };
 
-  outputs = inputs@{ self, nixpkgs, nixpkgs-unstable, home-manager, dots, nvf, ... }:
+  outputs = inputs@{ self, nixpkgs, nixpkgs-unstable, home-manager, dots, nvf,
+        mail-private, ... }:
   let
     system = "x86_64-linux";
 
@@ -61,7 +67,7 @@
           home-manager.backupFileExtension = "hm-backup";
 
           home-manager.extraSpecialArgs = {
-            inherit dots nvf pkgs-unstable;
+            inherit dots nvf pkgs-unstable mail-private;
           };
 
           home-manager.users.bob = import ./home-bob.nix;

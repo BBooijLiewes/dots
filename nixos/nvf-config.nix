@@ -493,6 +493,16 @@ in
           vim.cmd('syntax on')
         '';
 
+        mail_settings = ''
+          vim.api.nvim_create_autocmd("FileType", {
+            pattern = "mail",
+            callback = function()
+              vim.opt_local.textwidth = 72
+              vim.opt_local.colorcolumn = "72"
+            end,
+          })
+        '';
+
         lsp_navic = ''
           local ok, navic = pcall(require, "nvim-navic")
           if ok then

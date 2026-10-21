@@ -1,10 +1,12 @@
-{ config, pkgs, lib, dots, nvf, pkgs-unstable, ... }:
+{ config, pkgs, lib, dots, nvf, pkgs-unstable, mail-private, ... }:
 
 {
 
   imports = [
     nvf.homeManagerModules.default
     ./nvf-config.nix
+    ./neomutt.nix
+    "${mail-private}/mail-account.nix"
   ];
 
   home.username = "bob";

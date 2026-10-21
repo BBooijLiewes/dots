@@ -354,9 +354,6 @@
 
     # Terminal / mail
     kitty
-    neomutt
-    isync
-    msmtp
     gnupg
     fastfetch
 
